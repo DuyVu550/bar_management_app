@@ -241,6 +241,9 @@ class ConsumptionScreen extends ConsumerWidget {
     final qtyController = TextEditingController();
     final priceController = TextEditingController();
     final noteController = TextEditingController();
+    final customNameController = TextEditingController();
+    String selectedCustomUnit = 'Chai';
+    bool isCustomProduct = false;
     bool isInitialized = false;
 
     showDialog(
@@ -260,117 +263,186 @@ class ConsumptionScreen extends ConsumerWidget {
 
                 return StatefulBuilder(
                   builder: (context, setState) {
+                    final canSubmit = isCustomProduct || (selectedItem != null);
+
                     return AlertDialog(
                       backgroundColor: AppTheme.cardBg,
                       title: const Text(
                         'PHIẾU TIÊU THỤ ĐỒ UỐNG',
                         style: TextStyle(color: AppTheme.primaryGold, fontWeight: FontWeight.bold),
                       ),
-                      content: items.isEmpty
-                          ? const Text(
-                              'Vui lòng thêm sản phẩm vào Thực đơn trước khi ghi nhận tiêu thụ!',
-                              style: TextStyle(color: AppTheme.textMain),
-                            )
-                          : Form(
-                              key: formKey,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Dropdown chọn món
-                                    const Text('Sản phẩm tiêu thụ:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
-                                    const SizedBox(height: 8),
-                                    DropdownButtonFormField<int>(
-                                      value: selectedItem?.id,
-                                      dropdownColor: AppTheme.cardBg,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: AppTheme.darkBg,
-                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                                      ),
-                                      style: const TextStyle(color: AppTheme.textMain),
-                                      items: items.map((item) {
-                                        return DropdownMenuItem<int>(
-                                          value: item.id,
-                                          child: Text('${item.name} (${item.unit}) - Tồn: ${item.stock}'),
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedItem = items.firstWhere((i) => i.id == val);
-                                          if (selectedItem != null) {
-                                            priceController.text = '${selectedItem!.price.toInt()}';
-                                          }
-                                        });
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-
-                                    // Ô nhập số lượng
-                                    TextFormField(
-                                      controller: qtyController,
-                                      keyboardType: TextInputType.number,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Số lượng tiêu thụ',
-                                        labelStyle: TextStyle(color: AppTheme.textMuted),
-                                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
-                                        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
-                                      ),
-                                      style: const TextStyle(color: AppTheme.textMain),
-                                      validator: (val) {
-                                        if (val == null || val.trim().isEmpty) return 'Vui lòng nhập số lượng!';
-                                        final qty = int.tryParse(val) ?? 0;
-                                        if (qty <= 0) return 'Số lượng phải lớn hơn 0!';
-                                        if (selectedItem != null && qty > selectedItem!.stock) {
-                                          return 'Vượt quá số lượng tồn kho (Tồn: ${selectedItem!.stock})!';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-
-                                    // Ô nhập giá bán
-                                    TextFormField(
-                                      controller: priceController,
-                                      keyboardType: TextInputType.number,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Đơn giá bán (đ)',
-                                        labelStyle: TextStyle(color: AppTheme.textMuted),
-                                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
-                                        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
-                                      ),
-                                      style: const TextStyle(color: AppTheme.textMain),
-                                      validator: (val) {
-                                        if (val == null || val.trim().isEmpty) return 'Vui lòng nhập đơn giá!';
-                                        final price = double.tryParse(val) ?? 0.0;
-                                        if (price < 0) return 'Đơn giá không được âm!';
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-
-                                    // Ô ghi chú
-                                    TextFormField(
-                                      controller: noteController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Ghi chú',
-                                        labelStyle: TextStyle(color: AppTheme.textMuted),
-                                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
-                                        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
-                                      ),
-                                      style: const TextStyle(color: AppTheme.textMain),
-                                    ),
-                                  ],
-                                ),
+                      content: Form(
+                        key: formKey,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Toggle nhập tự do
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('Nhập sản phẩm tự do:', style: TextStyle(color: AppTheme.textMain, fontSize: 14)),
+                                  Switch(
+                                    value: isCustomProduct,
+                                    activeColor: AppTheme.primaryGold,
+                                    onChanged: (val) {
+                                      setState(() {
+                                        isCustomProduct = val;
+                                      });
+                                    },
+                                  ),
+                                ],
                               ),
-                            ),
+                              const SizedBox(height: 12),
+
+                              if (!isCustomProduct) ...[
+                                // Dropdown chọn món
+                                const Text('Sản phẩm tiêu thụ:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                                const SizedBox(height: 8),
+                                items.isEmpty
+                                    ? const Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                                        child: Text(
+                                          'Thực đơn trống. Vui lòng bật "Nhập sản phẩm tự do"!',
+                                          style: TextStyle(color: AppTheme.accentNeonRed, fontSize: 12),
+                                        ),
+                                      )
+                                    : DropdownButtonFormField<int>(
+                                        value: selectedItem?.id,
+                                        dropdownColor: AppTheme.cardBg,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: AppTheme.darkBg,
+                                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                        ),
+                                        style: const TextStyle(color: AppTheme.textMain),
+                                        items: items.map((item) {
+                                          return DropdownMenuItem<int>(
+                                            value: item.id,
+                                            child: Text('${item.name} (${item.unit}) - Tồn: ${item.stock}'),
+                                          );
+                                        }).toList(),
+                                        onChanged: (val) {
+                                          setState(() {
+                                            selectedItem = items.firstWhere((i) => i.id == val);
+                                            if (selectedItem != null) {
+                                              priceController.text = '${selectedItem!.price.toInt()}';
+                                            }
+                                          });
+                                        },
+                                      ),
+                              ] else ...[
+                                // Ô nhập tên tự do
+                                TextFormField(
+                                  controller: customNameController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Tên sản phẩm tiêu thụ',
+                                    labelStyle: TextStyle(color: AppTheme.textMuted),
+                                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
+                                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
+                                  ),
+                                  style: const TextStyle(color: AppTheme.textMain),
+                                  validator: (val) {
+                                    if (val == null || val.trim().isEmpty) return 'Vui lòng nhập tên sản phẩm!';
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Dropdown đơn vị tự do
+                                const Text('Đơn vị tính:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                                const SizedBox(height: 8),
+                                DropdownButtonFormField<String>(
+                                  value: selectedCustomUnit,
+                                  dropdownColor: AppTheme.cardBg,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: AppTheme.darkBg,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                  style: const TextStyle(color: AppTheme.textMain),
+                                  items: const ['Chai', 'Lon', 'Ly', 'Đĩa', 'Phần'].map((u) {
+                                    return DropdownMenuItem<String>(
+                                      value: u,
+                                      child: Text(u),
+                                    );
+                                  }).toList(),
+                                  onChanged: (val) {
+                                    if (val != null) {
+                                      setState(() {
+                                        selectedCustomUnit = val;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ],
+                              const SizedBox(height: 16),
+
+                              // Ô nhập số lượng
+                              TextFormField(
+                                controller: qtyController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: 'Số lượng tiêu thụ',
+                                  labelStyle: TextStyle(color: AppTheme.textMuted),
+                                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
+                                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
+                                ),
+                                style: const TextStyle(color: AppTheme.textMain),
+                                validator: (val) {
+                                  if (val == null || val.trim().isEmpty) return 'Vui lòng nhập số lượng!';
+                                  final qty = int.tryParse(val) ?? 0;
+                                  if (qty <= 0) return 'Số lượng phải lớn hơn 0!';
+                                  if (!isCustomProduct && selectedItem != null && qty > selectedItem!.stock) {
+                                    return 'Vượt quá số lượng tồn kho (Tồn: ${selectedItem!.stock})!';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Ô nhập giá bán
+                              TextFormField(
+                                controller: priceController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: 'Đơn giá bán (đ)',
+                                  labelStyle: TextStyle(color: AppTheme.textMuted),
+                                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
+                                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
+                                ),
+                                style: const TextStyle(color: AppTheme.textMain),
+                                validator: (val) {
+                                  if (val == null || val.trim().isEmpty) return 'Vui lòng nhập đơn giá!';
+                                  final price = double.tryParse(val) ?? 0.0;
+                                  if (price < 0) return 'Đơn giá không được âm!';
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Ô ghi chú
+                              TextFormField(
+                                controller: noteController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Ghi chú',
+                                  labelStyle: TextStyle(color: AppTheme.textMuted),
+                                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
+                                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
+                                ),
+                                style: const TextStyle(color: AppTheme.textMain),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
                           child: const Text('HỦY', style: TextStyle(color: AppTheme.textMuted)),
                         ),
-                        if (selectedItem != null)
+                        if (canSubmit)
                           ElevatedButton(
                             onPressed: () async {
                               if (formKey.currentState!.validate()) {
@@ -378,9 +450,14 @@ class ConsumptionScreen extends ConsumerWidget {
                                 final price = double.parse(priceController.text.trim());
                                 final note = noteController.text.trim();
 
+                                final itemId = isCustomProduct ? 0 : selectedItem!.id;
+                                final itemName = isCustomProduct
+                                    ? '${customNameController.text.trim()} ($selectedCustomUnit)'
+                                    : selectedItem!.name;
+
                                 await ref.read(stockActionsProvider.notifier).addConsumption(
-                                      menuItemId: selectedItem!.id,
-                                      menuItemName: selectedItem!.name,
+                                      menuItemId: itemId,
+                                      menuItemName: itemName,
                                       quantity: qty,
                                       price: price,
                                       note: note,
