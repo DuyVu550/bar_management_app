@@ -1,0 +1,72 @@
+# ==============================================================================
+# THÔNG TIN DỰ ÁN & QUY ƯỚC PHÁT TRIỂN (BAR MANAGER)
+# ==============================================================================
+#
+# 1. Dự án này làm gì & Các tính năng chính (Realtime):
+#    - Quản lý Đơn vị (Units): Hiển thị danh sách, thêm, sửa, xóa, xóa tất cả, và tìm kiếm đơn vị theo tên.
+#    - Quản lý Đồ uống (Drinks List): Hiển thị danh sách, thêm, sửa, xóa, xóa tất cả, và tìm kiếm đồ uống theo tên.
+#    - Nhập hàng (Stock In): Chức năng nhập hàng & thống kê lịch sử nhập hàng theo từng ngày.
+#    - Tiêu thụ (Consumption): Nhập đồ uống đã tiêu thụ & thống kê lịch sử tiêu thụ theo từng ngày.
+#    - Quản lý Kho hàng (Stock Management): Hiển thị tất cả danh sách đồ uống kèm số lượng tồn kho hiện tại.
+#      Xem chi tiết lịch sử Nhập hàng / Tiêu thụ của một đồ uống cụ thể.
+#    - Đồ uống đã hết hàng (Out of Stock): Hiển thị danh sách các đồ uống đã bán hết hàng (tồn kho = 0).
+#    - Báo cáo tài chính theo khoảng thời gian tùy ý:
+#      * Thống kê DOANH THU trên từng đầu mục đồ uống.
+#      * Thống kê CHI PHÍ trên từng đầu mục đồ uống.
+#      * Thống kê LỢI NHUẬN trên từng đầu mục đồ uống.
+#    - Đồ uống bán chạy nhất (Best Sellers): Hiển thị danh sách đồ uống bán chạy nhất, mang lại doanh thu lớn.
+#
+# 2. Cấu trúc thư mục chính:
+#    - lib/core/: Chứa tài nguyên dùng chung (database, router, theme, providers).
+#      * lib/core/database/app_database.dart: Quản lý kết nối và các collections của MongoDB.
+#      * lib/core/providers/usecase_providers.dart: Dependency Injection cho toàn app.
+#    - lib/features/: Các module chức năng chính áp dụng Clean Architecture (data, domain, presentation).
+#
+# 3. Tech Stack đang dùng:
+#    - Framework: Flutter (Dart)
+#    - State Management: Riverpod (flutter_riverpod, riverpod_annotation với Generator)
+#    - Routing: GoRouter
+#    - Database: MongoDB (kết nối trực tiếp qua thư viện mongo_dart)
+#
+# 4. Quy ước code, naming:
+#    - Clean Architecture: Phân biệt rõ domain (entities/usecases/repositories), data (repos impl/datasources), presentation (screens/widgets/providers).
+#    - Naming:
+#      * Thư mục & file: snake_case.
+#      * Class: PascalCase.
+#      * Biến & hàm: camelCase.
+#
+# 5. Yêu cầu đặc biệt của dự án:
+#    - Code phải ngắn gọn, cú pháp đơn giản, dễ hiểu, dễ mở rộng.
+#    - Khi làm xong bắt buộc phải chạy các test kiểm thử (flutter analyze, test case) để xác minh tính ổn định.
+#    - Chờ User duyệt và phê duyệt kết quả trước khi thực hiện push code lên Git.
+#
+# ==============================================================================
+
+# This file configures the analyzer, which statically analyzes Dart code to
+# check for errors, warnings, and lints.
+#
+# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
+# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
+# invoked from the command line by running `flutter analyze`.
+
+# The following line activates a set of recommended lints for Flutter apps,
+# packages, and plugins designed to encourage good coding practices.
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  # The lint rules applied to this project can be customized in the
+  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
+  # included above or to enable additional rules. A list of all available lints
+  # and their documentation is published at https://dart.dev/lints.
+  #
+  # Instead of disabling a lint rule for the entire project in the
+  # section below, it can also be suppressed for a single line of code
+  # or a specific dart file by using the `// ignore: name_of_lint` and
+  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
+  # producing the lint.
+  rules:
+    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
+    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+
+# Additional information about this file can be found at
+# https://dart.dev/guides/language/analysis-options
