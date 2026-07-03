@@ -23,7 +23,7 @@ final tableListProvider = AutoDisposeStreamProvider<List<TableEntity>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef TableListRef = AutoDisposeStreamProviderRef<List<TableEntity>>;
-String _$tableActionsHash() => r'c3c288be39bc73681f54b1f07ab5b26b5938c1dc';
+String _$tableActionsHash() => r'240b2884b0ac2fadecfedc7f0569f5d79ae754cd';
 
 /// See also [TableActions].
 @ProviderFor(TableActions)

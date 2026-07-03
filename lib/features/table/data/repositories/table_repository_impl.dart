@@ -1,13 +1,26 @@
 import 'dart:async';
-import 'package:mongo_dart/mongo_dart.dart';
-import '../../../../core/database/app_database.dart';
+import 'package:dio/dio.dart';
 import '../../domain/entities/table_entity.dart';
 import '../../domain/repositories/table_repository.dart';
+import '../../../../core/database/app_database.dart';
 
 class TableRepositoryImpl implements TableRepository {
   final AppDatabase _db;
 
   TableRepositoryImpl(this._db);
+
+  String _handleError(dynamic e) {
+    if (e is DioException) {
+      if (e.response != null && e.response!.data != null) {
+        final data = e.response!.data;
+        if (data is Map && data.containsKey('error')) {
+          return data['error'].toString();
+        }
+      }
+      return e.message ?? 'Lỗi kết nối server';
+    }
+    return e.toString();
+  }
 
   @override
   Stream<List<TableEntity>> getTables() async* {
@@ -18,7 +31,9 @@ class TableRepositoryImpl implements TableRepository {
   }
 
   Future<List<TableEntity>> _fetchTables() async {
-    final list = await _db.tables.find(where.sortBy('id')).toList();
+    await _db.ensureConnected();
+    final response = await _db.dio.get('/api/tables');
+    final list = response.data as List;
     return list.map((map) {
       return TableEntity.fromSchemaName(
         map['id'] as int,
@@ -30,34 +45,45 @@ class TableRepositoryImpl implements TableRepository {
 
   @override
   Future<void> createTable(String name) async {
-    final nextId = await _db.getNextId('tables');
-    await _db.tables.insert({
-      'id': nextId,
-      'name': name,
-      'status': TableStatus.vacant.name,
-    });
-    _db.notifyTableChanged();
+    try {
+      await _db.ensureConnected();
+      await _db.dio.post('/api/tables', data: {'name': name});
+      _db.notifyTableChanged();
+    } catch (e) {
+      throw Exception(_handleError(e));
+    }
   }
 
   @override
   Future<void> updateTableStatus(int tableId, TableStatus status) async {
-    await _db.tables.updateOne(
-      where.eq('id', tableId),
-      modify.set('status', status.name),
-    );
-    _db.notifyTableChanged();
+    try {
+      await _db.ensureConnected();
+      await _db.dio.put('/api/tables/$tableId/status', data: {'status': status.name});
+      _db.notifyTableChanged();
+    } catch (e) {
+      throw Exception(_handleError(e));
+    }
   }
 
   @override
   Future<void> deleteTable(int tableId) async {
-    final table = await _db.tables.findOne(where.eq('id', tableId));
-    if (table != null) {
-      if (table['status'] == TableStatus.vacant.name) {
-        await _db.tables.deleteOne(where.eq('id', tableId));
-        _db.notifyTableChanged();
-      } else {
-        throw Exception('Không thể xóa bàn đang có khách!');
-      }
+    try {
+      await _db.ensureConnected();
+      await _db.dio.delete('/api/tables/$tableId');
+      _db.notifyTableChanged();
+    } catch (e) {
+      throw Exception(_handleError(e));
+    }
+  }
+
+  @override
+  Future<void> renameTable(int tableId, String newName) async {
+    try {
+      await _db.ensureConnected();
+      await _db.dio.put('/api/tables/$tableId', data: {'name': newName});
+      _db.notifyTableChanged();
+    } catch (e) {
+      throw Exception(_handleError(e));
     }
   }
 }

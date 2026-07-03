@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:mongo_dart/mongo_dart.dart';
 import '../../../../core/database/app_database.dart';
 import '../../domain/entities/menu_item_entity.dart';
 import '../../domain/repositories/menu_repository.dart';
@@ -23,49 +22,49 @@ class MenuRepositoryImpl implements MenuRepository {
   }
 
   Future<List<MenuItemEntity>> _fetchMenuItems() async {
-    final list = await _db.menuItems.find(where.sortBy('id')).toList();
-    return list.map((map) => _toEntity(map)).toList();
+    await _db.ensureConnected();
+    final response = await _db.dio.get('/api/menu-items');
+    final list = response.data as List;
+    return list.map((map) => _toEntity(map as Map<String, dynamic>)).toList();
   }
 
   @override
   Future<void> addMenuItem(String name, double price, MenuCategory category, String unit) async {
-    final nextId = await _db.getNextId('menu_items');
-    await _db.menuItems.insert({
-      'id': nextId,
+    await _db.ensureConnected();
+    await _db.dio.post('/api/menu-items', data: {
       'name': name,
       'price': price,
       'category': category.name,
-      'isAvailable': true,
       'unit': unit,
-      'stock': 0,
     });
     _db.notifyMenuChanged();
   }
 
   @override
   Future<void> updateMenuItem(MenuItemEntity item) async {
-    await _db.menuItems.updateOne(
-      where.eq('id', item.id),
-      modify
-          .set('name', item.name)
-          .set('price', item.price)
-          .set('category', item.category.name)
-          .set('isAvailable', item.isAvailable)
-          .set('unit', item.unit)
-          .set('stock', item.stock),
-    );
+    await _db.ensureConnected();
+    await _db.dio.put('/api/menu-items/${item.id}', data: {
+      'name': item.name,
+      'price': item.price,
+      'category': item.category.name,
+      'isAvailable': item.isAvailable,
+      'unit': item.unit,
+      'stock': item.stock,
+    });
     _db.notifyMenuChanged();
   }
 
   @override
   Future<void> deleteMenuItem(int itemId) async {
-    await _db.menuItems.deleteOne(where.eq('id', itemId));
+    await _db.ensureConnected();
+    await _db.dio.delete('/api/menu-items/$itemId');
     _db.notifyMenuChanged();
   }
 
   @override
   Future<void> deleteAllMenuItems() async {
-    await _db.menuItems.deleteMany(where.exists('id'));
+    await _db.ensureConnected();
+    await _db.dio.delete('/api/menu-items?excludeIngredients=true');
     _db.notifyMenuChanged();
   }
 

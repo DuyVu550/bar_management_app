@@ -148,7 +148,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> with Sing
   Widget _buildMenuTab(OrderEntity order, AsyncValue<List<MenuItemEntity>> menuItemsStream) {
     return menuItemsStream.when(
       data: (items) {
-        final availableItems = items.where((item) => item.isAvailable).toList();
+        final availableItems = items.where((item) => item.isAvailable && item.category != MenuCategory.ingredient).toList();
         final filteredItems = availableItems.where((item) {
           final matchesSearch = item.name.toLowerCase().contains(_searchQuery.toLowerCase());
           final matchesCategory = _selectedCategory == null || item.category == _selectedCategory;
@@ -265,85 +265,83 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> with Sing
   }
 
   Widget _buildOrderItemsTab(OrderEntity order) {
-    if (order.items.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.receipt, size: 64, color: AppTheme.textMuted),
-            SizedBox(height: 12),
-            Text('Chưa gọi món nào', style: TextStyle(color: AppTheme.textMuted, fontSize: 16)),
-          ],
-        ),
-      );
-    }
-
     return Column(
       children: [
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(12),
-            itemCount: order.items.length,
-            itemBuilder: (context, index) {
-              final item = order.items[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
+          child: order.items.isEmpty
+              ? const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      Icon(Icons.receipt, size: 64, color: AppTheme.textMuted),
+                      SizedBox(height: 12),
+                      Text('Chưa gọi món nào', style: TextStyle(color: AppTheme.textMuted, fontSize: 16)),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: order.items.length,
+                  itemBuilder: (context, index) {
+                    final item = order.items[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
                           children: [
-                            Text(
-                              item.menuItem.name,
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textMain),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _currencyFormat.format(item.priceAtOrder),
-                              style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
-                            ),
-                            if (item.note != null && item.note!.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                'Ghi chú: ${item.note}',
-                                style: const TextStyle(color: AppTheme.secondaryAmber, fontSize: 12, fontStyle: FontStyle.italic),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.menuItem.name,
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textMain),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _currencyFormat.format(item.priceAtOrder),
+                                    style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                                  ),
+                                  if (item.note != null && item.note!.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Ghi chú: ${item.note}',
+                                      style: const TextStyle(color: AppTheme.secondaryAmber, fontSize: 12, fontStyle: FontStyle.italic),
+                                    ),
+                                  ]
+                                ],
                               ),
-                            ]
+                            ),
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.remove_circle_outline, color: AppTheme.textMuted),
+                                  onPressed: () => ref.read(orderActionsProvider.notifier).updateQuantity(item.id, item.quantity - 1),
+                                ),
+                                Text(
+                                  '${item.quantity}',
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textMain),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.add_circle_outline, color: AppTheme.primaryGold),
+                                  onPressed: () => ref.read(orderActionsProvider.notifier).updateQuantity(item.id, item.quantity + 1),
+                                ),
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  icon: const Icon(Icons.delete_outline, color: AppTheme.accentNeonRed),
+                                  onPressed: () => ref.read(orderActionsProvider.notifier).removeOrderItem(item.id),
+                                ),
+                              ],
+                            )
                           ],
                         ),
                       ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle_outline, color: AppTheme.textMuted),
-                            onPressed: () => ref.read(orderActionsProvider.notifier).updateQuantity(item.id, item.quantity - 1),
-                          ),
-                          Text(
-                            '${item.quantity}',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textMain),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.add_circle_outline, color: AppTheme.primaryGold),
-                            onPressed: () => ref.read(orderActionsProvider.notifier).updateQuantity(item.id, item.quantity + 1),
-                          ),
-                          const SizedBox(width: 8),
-                          IconButton(
-                            icon: const Icon(Icons.delete_outline, color: AppTheme.accentNeonRed),
-                            onPressed: () => ref.read(orderActionsProvider.notifier).removeOrderItem(item.id),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
-        // Panel thanh toán
+        // Panel thanh toán & Hủy bàn
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -383,17 +381,19 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> with Sing
                         child: const Text('HỦY BÀN', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                    if (order.items.isNotEmpty) ...[
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          onPressed: () => _showCheckoutReceiptDialog(context, order),
+                          child: const Text('THANH TOÁN', style: TextStyle(fontSize: 16)),
                         ),
-                        onPressed: () => _showCheckoutReceiptDialog(context, order),
-                        child: const Text('THANH TOÁN', style: TextStyle(fontSize: 16)),
                       ),
-                    ),
+                    ],
                   ],
                 )
               ],

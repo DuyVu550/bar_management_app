@@ -1,4 +1,4 @@
-enum MenuCategory { drink, food, snack }
+enum MenuCategory { drink, food, snack, ingredient }
 
 class MenuItemEntity {
   final int id;

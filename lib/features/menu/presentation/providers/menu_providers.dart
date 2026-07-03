@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../domain/entities/menu_item_entity.dart';
 import '../../../../core/providers/usecase_providers.dart';
+import '../../../../core/database/database_provider.dart';
 
 part 'menu_providers.g.dart';
 
@@ -58,5 +59,12 @@ class MenuActions extends _$MenuActions {
   Future<void> deleteAllMenuItems() async {
     final deleteAllMenuItemsUseCase = ref.read(deleteAllMenuItemsUseCaseProvider);
     await deleteAllMenuItemsUseCase();
+  }
+
+  Future<void> deleteAllIngredients() async {
+    final db = ref.read(databaseProvider);
+    await db.ensureConnected();
+    await db.dio.delete('/api/menu-items?category=ingredient');
+    db.notifyMenuChanged();
   }
 }

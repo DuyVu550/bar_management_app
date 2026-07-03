@@ -24,4 +24,9 @@ class TableActions extends _$TableActions {
     final deleteTableUseCase = ref.read(deleteTableUseCaseProvider);
     await deleteTableUseCase(id);
   }
+
+  Future<void> renameTable(int id, String newName) async {
+    final renameTableUseCase = ref.read(renameTableUseCaseProvider);
+    await renameTableUseCase(id, newName);
+  }
 }

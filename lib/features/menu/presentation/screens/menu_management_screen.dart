@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/menu_item_entity.dart';
 import '../providers/menu_providers.dart';
+import '../../../unit/presentation/providers/unit_providers.dart';
 
 class MenuManagementScreen extends ConsumerWidget {
   const MenuManagementScreen({super.key});
@@ -53,7 +54,10 @@ class MenuManagementScreen extends ConsumerWidget {
           Expanded(
             child: menuItemsStream.when(
               data: (allItems) {
-                if (allItems.isEmpty) {
+                final menuOnlyItems = allItems.where((i) => i.category != MenuCategory.ingredient).toList();
+                final filteredMenuOnlyItems = filteredItems.where((i) => i.category != MenuCategory.ingredient).toList();
+
+                if (menuOnlyItems.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -75,7 +79,7 @@ class MenuManagementScreen extends ConsumerWidget {
                   );
                 }
 
-                if (filteredItems.isEmpty && searchQuery.isNotEmpty) {
+                if (filteredMenuOnlyItems.isEmpty && searchQuery.isNotEmpty) {
                   return const Center(
                     child: Text(
                       'Không tìm thấy món ăn/nước uống phù hợp!',
@@ -86,9 +90,9 @@ class MenuManagementScreen extends ConsumerWidget {
 
                 return ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: filteredItems.length,
+                  itemCount: filteredMenuOnlyItems.length,
                   itemBuilder: (context, index) {
-                    final item = filteredItems[index];
+                    final item = filteredMenuOnlyItems[index];
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
                       color: AppTheme.cardBg,
@@ -104,7 +108,9 @@ class MenuManagementScreen extends ConsumerWidget {
                                 ? '🍹'
                                 : item.category == MenuCategory.food
                                     ? '🍔'
-                                    : '🍟',
+                                    : item.category == MenuCategory.snack
+                                        ? '🍟'
+                                        : '📦',
                             style: const TextStyle(fontSize: 20),
                           ),
                         ),
@@ -185,141 +191,186 @@ class MenuManagementScreen extends ConsumerWidget {
     bool isAvailable = item?.isAvailable ?? true;
     String selectedUnit = item?.unit ?? 'Chai';
     final isEdit = item != null;
+    bool isInitialized = false;
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          backgroundColor: AppTheme.cardBg,
-          title: Text(
-            isEdit ? 'Chỉnh sửa món' : 'Thêm món mới',
-            style: const TextStyle(color: AppTheme.primaryGold, fontWeight: FontWeight.bold),
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tên món',
-                    labelStyle: TextStyle(color: AppTheme.textMuted),
-                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
-                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
-                  ),
-                  style: const TextStyle(color: AppTheme.textMain),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: priceController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Đơn giá (đ)',
-                    labelStyle: TextStyle(color: AppTheme.textMuted),
-                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
-                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
-                  ),
-                  style: const TextStyle(color: AppTheme.textMain),
-                ),
-                const SizedBox(height: 16),
-                const Text('Phân loại:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: MenuCategory.values.map((cat) {
-                    final isSel = category == cat;
-                    return ChoiceChip(
-                      label: Text(cat == MenuCategory.drink
-                          ? 'Đồ uống 🍹'
-                          : cat == MenuCategory.food
-                              ? 'Đồ ăn 🍔'
-                              : 'Snack 🍟'),
-                      selected: isSel,
-                      selectedColor: AppTheme.primaryGold.withOpacity(0.2),
-                      labelStyle: TextStyle(
-                        color: isSel ? AppTheme.primaryGold : AppTheme.textMuted,
-                        fontSize: 12,
-                      ),
-                      onSelected: (selected) {
-                        if (selected) setState(() => category = cat);
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-                const Text('Đơn vị tính:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: selectedUnit,
-                  dropdownColor: AppTheme.cardBg,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: AppTheme.darkBg,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  style: const TextStyle(color: AppTheme.textMain),
-                  items: const ['Chai', 'Lon', 'Ly', 'Đĩa', 'Phần'].map((u) {
-                    return DropdownMenuItem<String>(
-                      value: u,
-                      child: Text(u),
-                    );
-                  }).toList(),
-                  onChanged: (val) {
-                    if (val != null) setState(() => selectedUnit = val);
-                  },
-                ),
-                if (isEdit) ...[
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Trạng thái phục vụ:', style: TextStyle(color: AppTheme.textMain)),
-                      Switch(
-                        value: isAvailable,
-                        activeColor: AppTheme.accentNeonGreen,
-                        inactiveTrackColor: AppTheme.accentNeonRed.withOpacity(0.2),
-                        onChanged: (val) => setState(() => isAvailable = val),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Hủy', style: TextStyle(color: AppTheme.textMuted)),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final name = nameController.text.trim();
-                final price = double.tryParse(priceController.text) ?? 0.0;
+      builder: (context) {
+        return Consumer(
+          builder: (context, ref, child) {
+            final unitsAsync = ref.watch(unitListProvider);
 
-                if (name.isNotEmpty && price > 0) {
-                  if (isEdit) {
-                    await ref.read(menuActionsProvider.notifier).updateMenuItem(
-                          item.copyWith(
-                            name: name,
-                            price: price,
-                            category: category,
-                            isAvailable: isAvailable,
-                            unit: selectedUnit,
-                          ),
-                        );
-                  } else {
-                    await ref.read(menuActionsProvider.notifier).addMenuItem(name, price, category, selectedUnit);
-                  }
-                  if (context.mounted) Navigator.pop(context);
+            return unitsAsync.when(
+              data: (units) {
+                final unitNames = units.map((u) => u.name).toList();
+                if (unitNames.isEmpty) {
+                  unitNames.addAll(['Chai', 'Lon', 'Ly', 'Đĩa', 'Phần']);
                 }
+
+                return StatefulBuilder(
+                  builder: (context, setState) {
+                    if (!isInitialized) {
+                      if (!unitNames.contains(selectedUnit)) {
+                        selectedUnit = unitNames.first;
+                      }
+                      isInitialized = true;
+                    }
+
+                    return AlertDialog(
+                      backgroundColor: AppTheme.cardBg,
+                      title: Text(
+                        isEdit ? 'Chỉnh sửa món' : 'Thêm món mới',
+                        style: const TextStyle(color: AppTheme.primaryGold, fontWeight: FontWeight.bold),
+                      ),
+                      content: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextField(
+                              controller: nameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Tên món',
+                                labelStyle: TextStyle(color: AppTheme.textMuted),
+                                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
+                                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
+                              ),
+                              style: const TextStyle(color: AppTheme.textMain),
+                            ),
+                            const SizedBox(height: 16),
+                            TextField(
+                              controller: priceController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: 'Đơn giá (đ)',
+                                labelStyle: TextStyle(color: AppTheme.textMuted),
+                                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
+                                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
+                              ),
+                              style: const TextStyle(color: AppTheme.textMain),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text('Phân loại:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: MenuCategory.values
+                                  .where((cat) => cat != MenuCategory.ingredient)
+                                  .map((cat) {
+                                final isSel = category == cat;
+                                return ChoiceChip(
+                                  label: Text(cat == MenuCategory.drink
+                                      ? 'Đồ uống 🍹'
+                                      : cat == MenuCategory.food
+                                          ? 'Đồ ăn 🍔'
+                                          : 'Snack 🍟'),
+                                  selected: isSel,
+                                  selectedColor: AppTheme.primaryGold.withOpacity(0.2),
+                                  labelStyle: TextStyle(
+                                    color: isSel ? AppTheme.primaryGold : AppTheme.textMuted,
+                                    fontSize: 12,
+                                  ),
+                                  onSelected: (selected) {
+                                    if (selected) setState(() => category = cat);
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text('Đơn vị tính:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                            const SizedBox(height: 8),
+                            DropdownButtonFormField<String>(
+                              value: selectedUnit,
+                              dropdownColor: AppTheme.cardBg,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: AppTheme.darkBg,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              style: const TextStyle(color: AppTheme.textMain),
+                              items: unitNames.map((u) {
+                                return DropdownMenuItem<String>(
+                                  value: u,
+                                  child: Text(u),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                if (val != null) setState(() => selectedUnit = val);
+                              },
+                            ),
+                            if (isEdit) ...[
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('Trạng thái phục vụ:', style: TextStyle(color: AppTheme.textMain)),
+                                  Switch(
+                                    value: isAvailable,
+                                    activeColor: AppTheme.accentNeonGreen,
+                                    inactiveTrackColor: AppTheme.accentNeonRed.withOpacity(0.2),
+                                    onChanged: (val) => setState(() => isAvailable = val),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Hủy', style: TextStyle(color: AppTheme.textMuted)),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final name = nameController.text.trim();
+                            final price = double.tryParse(priceController.text) ?? 0.0;
+
+                            if (name.isNotEmpty && price > 0) {
+                              if (isEdit) {
+                                await ref.read(menuActionsProvider.notifier).updateMenuItem(
+                                      item.copyWith(
+                                        name: name,
+                                        price: price,
+                                        category: category,
+                                        isAvailable: isAvailable,
+                                        unit: selectedUnit,
+                                      ),
+                                    );
+                              } else {
+                                await ref.read(menuActionsProvider.notifier).addMenuItem(name, price, category, selectedUnit);
+                              }
+                              if (context.mounted) Navigator.pop(context);
+                            }
+                          },
+                          child: Text(isEdit ? 'Lưu' : 'Thêm'),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
-              child: Text(isEdit ? 'Lưu' : 'Thêm'),
-            ),
-          ],
-        ),
-      ),
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(color: AppTheme.primaryGold),
+                ),
+              ),
+              error: (err, _) => AlertDialog(
+                backgroundColor: AppTheme.cardBg,
+                content: Text('Lỗi tải đơn vị: $err', style: const TextStyle(color: AppTheme.accentNeonRed)),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Hủy', style: TextStyle(color: AppTheme.textMuted)),
+                  )
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

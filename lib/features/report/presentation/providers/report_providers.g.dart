@@ -182,7 +182,7 @@ class _FinancialReportProviderElement
   DateTime get end => (origin as FinancialReportProvider).end;
 }
 
-String _$bestSellersHash() => r'b928f7c37a58d35c2f90f9ae6ff5b24c118cfae4';
+String _$bestSellersHash() => r'93a4553cb9dd5e1348704a902cb7cdb34299047a';
 
 /// See also [bestSellers].
 @ProviderFor(bestSellers)

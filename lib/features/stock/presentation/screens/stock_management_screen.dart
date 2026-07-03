@@ -86,7 +86,8 @@ class _StockManagementScreenState extends ConsumerState<StockManagementScreen> {
     return menuItemsAsync.when(
       data: (items) {
         var filteredItems = items.where((item) {
-          return item.name.toLowerCase().contains(_searchQuery);
+          return item.category == MenuCategory.ingredient &&
+              item.name.toLowerCase().contains(_searchQuery);
         }).toList();
 
         if (onlyOutOfStock) {

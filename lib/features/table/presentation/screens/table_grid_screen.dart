@@ -12,157 +12,190 @@ class TableGridScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tablesStream = ref.watch(tableListProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('BAR MANAGER'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.straighten, color: AppTheme.primaryGold),
-            tooltip: 'Quản lý Đơn vị',
-            onPressed: () => context.push('/units'),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('BAR MANAGER'),
+          bottom: const TabBar(
+            indicatorColor: AppTheme.primaryGold,
+            labelColor: AppTheme.primaryGold,
+            unselectedLabelColor: AppTheme.textMuted,
+            tabs: [
+              Tab(text: 'BÀN THƯỜNG'),
+              Tab(text: 'BÀN VIP'),
+            ],
           ),
-          IconButton(
-            icon: const Icon(Icons.move_to_inbox, color: AppTheme.primaryGold),
-            tooltip: 'Nhập hàng',
-            onPressed: () => context.push('/stock-in'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.shopping_bag_outlined, color: AppTheme.primaryGold),
-            tooltip: 'Tiêu thụ',
-            onPressed: () => context.push('/consumption'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.inventory, color: AppTheme.primaryGold),
-            tooltip: 'Báo cáo kho',
-            onPressed: () => context.push('/stock-manage'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.restaurant_menu, color: AppTheme.primaryGold),
-            tooltip: 'Quản lý Menu',
-            onPressed: () => context.push('/menu-manage'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.bar_chart, color: AppTheme.primaryGold),
-            tooltip: 'Báo cáo doanh thu',
-            onPressed: () => context.push('/report'),
-          ),
-        ],
-      ),
-      body: tablesStream.when(
-        data: (tables) {
-          if (tables.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.table_restaurant_outlined, size: 80, color: AppTheme.textMuted),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Chưa có bàn nào trong sơ đồ',
-                    style: TextStyle(color: AppTheme.textMuted, fontSize: 18, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () => _showAddTableDialog(context, ref),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Thêm bàn mới'),
-                  ),
-                ],
-              ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.straighten, color: AppTheme.primaryGold),
+              tooltip: 'Quản lý Đơn vị',
+              onPressed: () => context.push('/units'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.move_to_inbox, color: AppTheme.primaryGold),
+              tooltip: 'Nhập hàng',
+              onPressed: () => context.push('/stock-in'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.shopping_bag_outlined, color: AppTheme.primaryGold),
+              tooltip: 'Tiêu thụ',
+              onPressed: () => context.push('/consumption'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.inventory, color: AppTheme.primaryGold),
+              tooltip: 'Báo cáo kho',
+              onPressed: () => context.push('/stock-manage'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.layers, color: AppTheme.primaryGold),
+              tooltip: 'Quản lý Nguyên liệu',
+              onPressed: () => context.push('/ingredients-manage'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.restaurant_menu, color: AppTheme.primaryGold),
+              tooltip: 'Quản lý Thực đơn',
+              onPressed: () => context.push('/menu-manage'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.bar_chart, color: AppTheme.primaryGold),
+              tooltip: 'Báo cáo doanh thu',
+              onPressed: () => context.push('/report'),
+            ),
+          ],
+        ),
+        body: tablesStream.when(
+          data: (tables) {
+            // Chia bàn thường và bàn VIP (tên chứa chữ VIP)
+            final normalTables = tables.where((t) => !t.name.toUpperCase().contains('VIP')).toList();
+            final vipTables = tables.where((t) => t.name.toUpperCase().contains('VIP')).toList();
+
+            return TabBarView(
+              children: [
+                _buildGrid(context, ref, normalTables, 'Chưa có bàn thường nào'),
+                _buildGrid(context, ref, vipTables, 'Chưa có bàn VIP nào'),
+              ],
             );
-          }
+          },
+          loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryGold)),
+          error: (err, stack) => Center(
+            child: Text(
+              'Lỗi tải sơ đồ bàn: $err',
+              style: const TextStyle(color: AppTheme.accentNeonRed),
+            ),
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: AppTheme.primaryGold,
+          foregroundColor: AppTheme.darkBg,
+          onPressed: () => _showAddTableDialog(context, ref),
+          child: const Icon(Icons.add, size: 28),
+        ),
+      ),
+    );
+  }
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.1,
+  Widget _buildGrid(BuildContext context, WidgetRef ref, List<TableEntity> tables, String emptyMessage) {
+    if (tables.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.table_restaurant_outlined, size: 80, color: AppTheme.textMuted),
+            const SizedBox(height: 16),
+            Text(
+              emptyMessage,
+              style: const TextStyle(color: AppTheme.textMuted, fontSize: 18, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 1.1,
+        ),
+        itemCount: tables.length,
+        itemBuilder: (context, index) {
+          final table = tables[index];
+          final isVacant = table.status == TableStatus.vacant;
+
+          return Card(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppTheme.cardBg,
+                    AppTheme.cardBg.withValues(alpha: 0.8),
+                  ],
+                ),
+                border: Border.all(
+                  color: isVacant 
+                      ? AppTheme.accentNeonGreen.withValues(alpha: 0.3) 
+                      : AppTheme.accentNeonRed.withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isVacant 
+                        ? AppTheme.accentNeonGreen.withValues(alpha: 0.08) 
+                        : AppTheme.accentNeonRed.withValues(alpha: 0.08),
+                    blurRadius: 8,
+                    spreadRadius: 2,
+                  )
+                ]
               ),
-              itemCount: tables.length,
-              itemBuilder: (context, index) {
-                final table = tables[index];
-                final isVacant = table.status == TableStatus.vacant;
-
-                return GestureDetector(
-                  onTap: () {
-                    context.push('/table/${table.id}?name=${Uri.encodeComponent(table.name)}');
-                  },
-                  onLongPress: () {
-                    if (isVacant) {
-                      _showDeleteConfirmDialog(context, ref, table);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Không thể xóa bàn đang có khách!'),
-                          backgroundColor: AppTheme.accentNeonRed,
-                        ),
-                      );
-                    }
-                  },
-                  child: Card(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppTheme.cardBg,
-                            AppTheme.cardBg.withOpacity(0.8),
-                          ],
-                        ),
-                        border: Border.all(
-                          color: isVacant 
-                              ? AppTheme.accentNeonGreen.withOpacity(0.3) 
-                              : AppTheme.accentNeonRed.withOpacity(0.3),
-                          width: 1.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: isVacant 
-                                ? AppTheme.accentNeonGreen.withOpacity(0.08) 
-                                : AppTheme.accentNeonRed.withOpacity(0.08),
-                            blurRadius: 8,
-                            spreadRadius: 2,
-                          )
-                        ]
-                      ),
+              child: Stack(
+                children: [
+                  // Phần click chính vào bàn để gọi món (đặt trước)
+                  InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      context.push('/table/${table.id}?name=${Uri.encodeComponent(table.name)}');
+                    },
+                    child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.table_restaurant,
-                            size: 48,
+                            size: 44,
                             color: isVacant ? AppTheme.accentNeonGreen : AppTheme.accentNeonRed,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           Text(
                             table.name,
                             style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: AppTheme.textMain,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                             decoration: BoxDecoration(
                               color: isVacant 
-                                  ? AppTheme.accentNeonGreen.withOpacity(0.15) 
-                                  : AppTheme.accentNeonRed.withOpacity(0.15),
+                                  ? AppTheme.accentNeonGreen.withValues(alpha: 0.15) 
+                                  : AppTheme.accentNeonRed.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               isVacant ? 'TRỐNG' : 'CÓ KHÁCH',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 color: isVacant ? AppTheme.accentNeonGreen : AppTheme.accentNeonRed,
-                                letterSpacing: 1.0,
+                                letterSpacing: 0.8,
                               ),
                             ),
                           ),
@@ -170,27 +203,76 @@ class TableGridScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                );
-              },
+                  // Nút menu (3 chấm) ở góc trên bên phải hiển thị PopupMenu trực quan (đặt sau để đè lên trên InkWell)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: PopupMenuButton<String>(
+                      icon: const Icon(
+                        Icons.more_vert,
+                        color: AppTheme.textMuted,
+                        size: 22,
+                      ),
+                      tooltip: 'Tùy chọn bàn',
+                      onSelected: (value) {
+                        if (value == 'rename') {
+                          _showRenameTableDialog(context, ref, table);
+                        } else if (value == 'delete') {
+                          if (isVacant) {
+                            _showDeleteConfirmDialog(context, ref, table);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Không thể xóa bàn đang có khách!'),
+                                backgroundColor: AppTheme.accentNeonRed,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'rename',
+                          child: ListTile(
+                            leading: Icon(Icons.edit, color: AppTheme.primaryGold, size: 20),
+                            title: Text('Sửa tên bàn', style: TextStyle(fontSize: 14)),
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                          ),
+                        ),
+                        PopupMenuItem<String>(
+                          value: 'delete',
+                          enabled: isVacant,
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.delete,
+                              color: isVacant ? AppTheme.accentNeonRed : AppTheme.textMuted,
+                              size: 20,
+                            ),
+                            title: Text(
+                              'Xóa bàn',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isVacant ? AppTheme.textMain : AppTheme.textMuted,
+                              ),
+                            ),
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryGold)),
-        error: (err, stack) => Center(
-          child: Text(
-            'Lỗi tải sơ đồ bàn: $err',
-            style: const TextStyle(color: AppTheme.accentNeonRed),
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppTheme.primaryGold,
-        foregroundColor: AppTheme.darkBg,
-        onPressed: () => _showAddTableDialog(context, ref),
-        child: const Icon(Icons.add, size: 28),
       ),
     );
   }
+
+
 
   void _showAddTableDialog(BuildContext context, WidgetRef ref) {
     final controller = TextEditingController();
@@ -216,11 +298,70 @@ class TableGridScreen extends ConsumerWidget {
             onPressed: () async {
               final name = controller.text.trim();
               if (name.isNotEmpty) {
-                await ref.read(tableActionsProvider.notifier).createTable(name);
-                if (context.mounted) Navigator.pop(context);
+                try {
+                  await ref.read(tableActionsProvider.notifier).createTable(name);
+                  if (context.mounted) Navigator.pop(context);
+                } catch (e) {
+                  final errorMsg = e.toString().replaceFirst('Exception: ', '');
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(errorMsg),
+                        backgroundColor: AppTheme.accentNeonRed,
+                      ),
+                    );
+                  }
+                }
               }
             },
             child: const Text('Thêm'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRenameTableDialog(BuildContext context, WidgetRef ref, TableEntity table) {
+    final controller = TextEditingController(text: table.name);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.cardBg,
+        title: const Text('Đổi tên bàn', style: TextStyle(color: AppTheme.primaryGold)),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: 'Nhập tên bàn mới',
+          ),
+          autofocus: true,
+          style: const TextStyle(color: AppTheme.textMain),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy', style: TextStyle(color: AppTheme.textMuted)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newName = controller.text.trim();
+              if (newName.isNotEmpty) {
+                try {
+                  await ref.read(tableActionsProvider.notifier).renameTable(table.id, newName);
+                  if (context.mounted) Navigator.pop(context);
+                } catch (e) {
+                  final errorMsg = e.toString().replaceFirst('Exception: ', '');
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(errorMsg),
+                        backgroundColor: AppTheme.accentNeonRed,
+                      ),
+                    );
+                  }
+                }
+              }
+            },
+            child: const Text('Lưu'),
           ),
         ],
       ),
@@ -245,8 +386,20 @@ class TableGridScreen extends ConsumerWidget {
               foregroundColor: Colors.white,
             ),
             onPressed: () async {
-              await ref.read(tableActionsProvider.notifier).deleteTable(table.id);
-              if (context.mounted) Navigator.pop(context);
+              try {
+                await ref.read(tableActionsProvider.notifier).deleteTable(table.id);
+                if (context.mounted) Navigator.pop(context);
+              } catch (e) {
+                final errorMsg = e.toString().replaceFirst('Exception: ', '');
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(errorMsg),
+                      backgroundColor: AppTheme.accentNeonRed,
+                    ),
+                  );
+                }
+              }
             },
             child: const Text('Xóa'),
           ),

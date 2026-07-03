@@ -46,47 +46,17 @@ Stream<List<BestSellerEntity>> bestSellers(BestSellersRef ref) async* {
   
   Future<List<BestSellerEntity>> fetch() async {
     await db.ensureConnected();
-    final completedOrders = await db.orders.find(
-      where.eq('status', OrderStatus.completed.name),
-    ).toList();
-    
-    final Map<int, BestSellerEntity> map = {};
-    
-    for (final row in completedOrders) {
-      final itemsList = row['items'] as List? ?? [];
-      for (final itemMap in itemsList) {
-        final menuItemMap = itemMap['menuItem'] as Map<String, dynamic>;
-        final id = menuItemMap['id'] as int;
-        final name = menuItemMap['name'] as String;
-        final qty = itemMap['quantity'] as int;
-        final priceAtOrder = (itemMap['priceAtOrder'] as num).toDouble();
-        final revenue = qty * priceAtOrder;
-        
-        if (map.containsKey(id)) {
-          final existing = map[id]!;
-          map[id] = existing.copyWith(
-            quantitySold: existing.quantitySold + qty,
-            totalRevenue: existing.totalRevenue + revenue,
-          );
-        } else {
-          map[id] = BestSellerEntity(
-            menuItemId: id,
-            menuItemName: name,
-            quantitySold: qty,
-            totalRevenue: revenue,
-          );
-        }
-      }
-    }
-    
-    final list = map.values.toList();
-    list.sort((a, b) {
-      final cmp = b.quantitySold.compareTo(a.quantitySold);
-      if (cmp != 0) return cmp;
-      return b.totalRevenue.compareTo(a.totalRevenue);
-    });
-    
-    return list;
+    final response = await db.dio.get('/api/reports/best-sellers');
+    final list = response.data as List;
+    return list.map((item) {
+      final map = item as Map<String, dynamic>;
+      return BestSellerEntity(
+        menuItemId: map['menuItemId'] as int,
+        menuItemName: map['menuItemName'] as String,
+        quantitySold: map['quantitySold'] as int,
+        totalRevenue: (map['totalRevenue'] as num).toDouble(),
+      );
+    }).toList();
   }
 
   yield await fetch();

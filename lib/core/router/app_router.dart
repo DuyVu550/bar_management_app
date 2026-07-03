@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/table/presentation/screens/table_grid_screen.dart';
 import '../../features/order/presentation/screens/order_detail_screen.dart';
 import '../../features/menu/presentation/screens/menu_management_screen.dart';
+import '../../features/menu/presentation/screens/ingredient_management_screen.dart';
 import '../../features/report/presentation/screens/revenue_report_screen.dart';
 import '../../features/unit/presentation/screens/unit_management_screen.dart';
 import '../../features/stock/presentation/screens/stock_in_screen.dart';
@@ -27,6 +28,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/menu-manage',
       builder: (context, state) => const MenuManagementScreen(),
+    ),
+    GoRoute(
+      path: '/ingredients-manage',
+      builder: (context, state) => const IngredientManagementScreen(),
     ),
     GoRoute(
       path: '/report',

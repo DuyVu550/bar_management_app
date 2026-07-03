@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:mongo_dart/mongo_dart.dart';
 import '../../../../core/database/app_database.dart';
 import '../../domain/entities/unit_entity.dart';
 import '../../domain/repositories/unit_repository.dart';
@@ -18,39 +17,37 @@ class UnitRepositoryImpl implements UnitRepository {
   }
 
   Future<List<UnitEntity>> _fetchUnits() async {
-    final list = await _db.units.find(where.sortBy('id')).toList();
-    return list.map((map) => UnitEntity.fromMap(map)).toList();
+    await _db.ensureConnected();
+    final response = await _db.dio.get('/api/units');
+    final list = response.data as List;
+    return list.map((map) => UnitEntity.fromMap(map as Map<String, dynamic>)).toList();
   }
 
   @override
   Future<void> addUnit(String name) async {
-    final nextId = await _db.getNextId('units');
-    await _db.units.insert({
-      'id': nextId,
-      'name': name,
-    });
+    await _db.ensureConnected();
+    await _db.dio.post('/api/units', data: {'name': name});
     _db.notifyUnitChanged();
   }
 
   @override
   Future<void> updateUnit(UnitEntity unit) async {
-    await _db.units.updateOne(
-      where.eq('id', unit.id),
-      modify.set('name', unit.name),
-    );
+    await _db.ensureConnected();
+    await _db.dio.put('/api/units/${unit.id}', data: {'name': unit.name});
     _db.notifyUnitChanged();
   }
 
   @override
   Future<void> deleteUnit(int id) async {
-    await _db.units.deleteOne(where.eq('id', id));
+    await _db.ensureConnected();
+    await _db.dio.delete('/api/units/$id');
     _db.notifyUnitChanged();
   }
 
   @override
   Future<void> deleteAllUnits() async {
-    // Xóa tất cả các bản ghi có tồn tại trường id
-    await _db.units.deleteMany(where.exists('id'));
+    await _db.ensureConnected();
+    await _db.dio.delete('/api/units');
     _db.notifyUnitChanged();
   }
 }

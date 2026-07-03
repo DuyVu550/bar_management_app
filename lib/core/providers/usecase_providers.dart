@@ -31,6 +31,7 @@ import '../../features/table/domain/usecases/get_tables_usecase.dart';
 import '../../features/table/domain/usecases/create_table_usecase.dart';
 import '../../features/table/domain/usecases/update_table_status_usecase.dart';
 import '../../features/table/domain/usecases/delete_table_usecase.dart';
+import '../../features/table/domain/usecases/rename_table_usecase.dart';
 
 import '../../features/menu/domain/usecases/get_menu_items_usecase.dart';
 import '../../features/menu/domain/usecases/watch_menu_items_usecase.dart';
@@ -79,6 +80,7 @@ final getTablesUseCaseProvider = Provider((ref) => GetTablesUseCase(ref.watch(ta
 final createTableUseCaseProvider = Provider((ref) => CreateTableUseCase(ref.watch(tableRepositoryProvider)));
 final updateTableStatusUseCaseProvider = Provider((ref) => UpdateTableStatusUseCase(ref.watch(tableRepositoryProvider)));
 final deleteTableUseCaseProvider = Provider((ref) => DeleteTableUseCase(ref.watch(tableRepositoryProvider)));
+final renameTableUseCaseProvider = Provider((ref) => RenameTableUseCase(ref.watch(tableRepositoryProvider)));
 
 // Menu
 final getMenuItemsUseCaseProvider = Provider((ref) => GetMenuItemsUseCase(ref.watch(menuRepositoryProvider)));
