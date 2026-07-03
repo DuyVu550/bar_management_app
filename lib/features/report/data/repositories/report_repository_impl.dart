@@ -5,6 +5,8 @@ import '../../../menu/domain/entities/menu_item_entity.dart';
 import '../../../order/domain/entities/order_entity.dart';
 import '../../../order/domain/entities/order_item_entity.dart';
 import '../../domain/entities/daily_revenue_entity.dart';
+import '../../domain/entities/financial_report_entity.dart';
+import '../../domain/entities/financial_item_entity.dart';
 import '../../domain/repositories/report_repository.dart';
 
 class ReportRepositoryImpl implements ReportRepository {
@@ -121,4 +123,130 @@ class ReportRepositoryImpl implements ReportRepository {
     reports.sort((a, b) => a.date.compareTo(b.date));
     return reports;
   }
+
+  @override
+  Future<FinancialReportEntity> getFinancialReport(DateTime start, DateTime end) async {
+    await _db.ensureConnected();
+
+    final startOfDay = DateTime(start.year, start.month, start.day);
+    final endOfDay = DateTime(end.year, end.month, end.day, 23, 59, 59, 999);
+    
+    final startStr = startOfDay.toIso8601String();
+    final endStr = endOfDay.toIso8601String();
+
+    // 1. Lấy tất cả hóa đơn hoàn thành trong khoảng thời gian
+    final orderRows = await _db.orders.find(
+      where
+          .eq('status', OrderStatus.completed.name)
+          .gte('completedAt', startStr)
+          .lte('completedAt', endStr),
+    ).toList();
+
+    // 2. Lấy tất cả giao dịch kho trong khoảng thời gian
+    final txRows = await _db.stockTransactions.find(
+      where
+          .gte('date', startStr)
+          .lte('date', endStr),
+    ).toList();
+
+    // 3. Lấy tất cả món ăn/uống trong Menu để có tên và ID đầy đủ
+    final menuRows = await _db.menuItems.find().toList();
+
+    // Map chứa thống kê tạm thời
+    final Map<int, _TempStats> statsMap = {};
+
+    // Khởi tạo map từ danh mục menuItems hiện có
+    for (final row in menuRows) {
+      final id = row['id'] as int;
+      final name = row['name'] as String;
+      statsMap[id] = _TempStats(name);
+    }
+
+    // 4. Xử lý doanh thu từ các Hóa đơn (Orders)
+    for (final row in orderRows) {
+      final orderEntity = _toOrderEntity(row);
+      for (final item in orderEntity.items) {
+        final id = item.menuItem.id;
+        final name = item.menuItem.name;
+        
+        if (!statsMap.containsKey(id)) {
+          statsMap[id] = _TempStats(name);
+        }
+        
+        final stats = statsMap[id]!;
+        stats.revenue += item.quantity * item.priceAtOrder;
+        stats.quantitySold += item.quantity;
+      }
+    }
+
+    // 5. Xử lý chi phí và doanh thu từ Giao dịch Kho (stockTransactions)
+    for (final row in txRows) {
+      final menuItemId = row['menuItemId'] as int;
+      final menuItemName = row['menuItemName'] as String;
+      final type = row['type'] as String; // 'in' hoặc 'out'
+      final quantity = row['quantity'] as int;
+      final price = (row['price'] as num).toDouble();
+
+      if (!statsMap.containsKey(menuItemId)) {
+        statsMap[menuItemId] = _TempStats(menuItemName);
+      }
+
+      final stats = statsMap[menuItemId]!;
+      if (type == 'in') {
+        // Nhập hàng -> tính vào chi phí
+        stats.cost += quantity * price;
+        stats.quantityImported += quantity;
+      } else if (type == 'out') {
+        // Tiêu thụ -> tính vào doanh thu tiêu thụ trực tiếp (giá bán)
+        stats.revenue += quantity * price;
+        stats.quantitySold += quantity;
+      }
+    }
+
+    // 6. Tổng hợp kết quả
+    double totalRevenue = 0.0;
+    double totalCost = 0.0;
+    final List<FinancialItemEntity> items = [];
+
+    statsMap.forEach((id, stats) {
+      // Chỉ đưa vào báo cáo nếu sản phẩm có hoạt động tài chính nào
+      if (stats.revenue > 0 || stats.cost > 0 || stats.quantitySold > 0 || stats.quantityImported > 0) {
+        final profit = stats.revenue - stats.cost;
+        items.add(FinancialItemEntity(
+          menuItemId: id,
+          menuItemName: stats.name,
+          revenue: stats.revenue,
+          cost: stats.cost,
+          profit: profit,
+          quantitySold: stats.quantitySold,
+          quantityImported: stats.quantityImported,
+        ));
+
+        totalRevenue += stats.revenue;
+        totalCost += stats.cost;
+      }
+    });
+
+    // Sắp xếp danh sách món ăn/đồ uống theo doanh thu giảm dần
+    items.sort((a, b) => b.revenue.compareTo(a.revenue));
+
+    return FinancialReportEntity(
+      startDate: start,
+      endDate: end,
+      totalRevenue: totalRevenue,
+      totalCost: totalCost,
+      totalProfit: totalRevenue - totalCost,
+      items: items,
+    );
+  }
+}
+
+class _TempStats {
+  final String name;
+  double revenue = 0.0;
+  double cost = 0.0;
+  int quantitySold = 0;
+  int quantityImported = 0;
+
+  _TempStats(this.name);
 }

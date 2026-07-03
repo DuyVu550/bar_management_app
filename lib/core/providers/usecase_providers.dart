@@ -50,6 +50,7 @@ import '../../features/order/domain/usecases/cancel_order_usecase.dart';
 
 import '../../features/report/domain/usecases/get_daily_revenue_usecase.dart';
 import '../../features/report/domain/usecases/get_revenue_report_range_usecase.dart';
+import '../../features/report/domain/usecases/get_financial_report_usecase.dart';
 
 // Repository Providers
 final tableRepositoryProvider = Provider<TableRepository>((ref) {
@@ -100,6 +101,7 @@ final cancelOrderUseCaseProvider = Provider((ref) => CancelOrderUseCase(ref.watc
 // Report
 final getDailyRevenueUseCaseProvider = Provider((ref) => GetDailyRevenueUseCase(ref.watch(reportRepositoryProvider)));
 final getRevenueReportRangeUseCaseProvider = Provider((ref) => GetRevenueReportRangeUseCase(ref.watch(reportRepositoryProvider)));
+final getFinancialReportUseCaseProvider = Provider((ref) => GetFinancialReportUseCase(ref.watch(reportRepositoryProvider)));
 
 // Unit
 final unitRepositoryProvider = Provider<UnitRepository>((ref) {
