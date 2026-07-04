@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Bar Manager (with Backend)",
+      "request": "launch",
+      "type": "dart",
+      "preLaunchTask": "Start Backend Server",
+      "args": [
+        "-d",
+        "chrome"
+      ]
+    }
+  ]
+}

@@ -29,6 +29,7 @@
 
 5. **Giao dịch Tiêu thụ (Consumption):**
    * Xuất kho tiêu thụ nguyên liệu ngoài luồng gọi món tại bàn.
+   * **Tự động áp giá nhập hàng:** Không cần nhập giá thủ công khi tạo phiếu tiêu thụ. Hệ thống sẽ tự động lấy đơn giá từ **phiếu nhập kho gần nhất** của nguyên liệu thô đó để tính toán chi phí chính xác.
    * Ngăn chặn xuất âm kho, tự động kiểm tra đối chiếu số lượng tồn kho khả dụng hiện tại.
    * Lịch sử tiêu thụ gom nhóm chi tiết theo ngày.
 

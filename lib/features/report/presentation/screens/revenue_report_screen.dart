@@ -5,7 +5,6 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../order/domain/entities/order_entity.dart';
 import '../../domain/entities/financial_report_entity.dart';
 import '../../domain/entities/financial_item_entity.dart';
-import '../../domain/entities/best_seller_entity.dart';
 import '../providers/report_providers.dart';
 
 class RevenueReportScreen extends ConsumerWidget {
@@ -22,7 +21,11 @@ class RevenueReportScreen extends ConsumerWidget {
             indicatorColor: AppTheme.primaryGold,
             labelColor: AppTheme.primaryGold,
             unselectedLabelColor: AppTheme.textMuted,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 0.8),
+            labelStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              letterSpacing: 0.8,
+            ),
             tabs: [
               Tab(
                 icon: Icon(Icons.receipt_long_outlined),
@@ -32,10 +35,7 @@ class RevenueReportScreen extends ConsumerWidget {
                 icon: Icon(Icons.analytics_outlined),
                 text: 'BÁO CÁO TÀI CHÍNH',
               ),
-              Tab(
-                icon: Icon(Icons.star_outline),
-                text: 'BÁN CHẠY NHẤT',
-              ),
+              Tab(icon: Icon(Icons.star_outline), text: 'BÁN CHẠY NHẤT'),
             ],
           ),
         ),
@@ -67,7 +67,9 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
 
   @override
   Widget build(BuildContext context) {
-    final dailyRevenueAsync = ref.watch(dailyRevenueStateProvider(_selectedDate));
+    final dailyRevenueAsync = ref.watch(
+      dailyRevenueStateProvider(_selectedDate),
+    );
     final weeklyReportAsync = ref.watch(weeklyRevenueReportProvider);
 
     return SingleChildScrollView(
@@ -99,7 +101,9 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
                 _buildOrderList(report.orders),
               ],
             ),
-            loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryGold)),
+            loading: () => const Center(
+              child: CircularProgressIndicator(color: AppTheme.primaryGold),
+            ),
             error: (err, stack) => Center(child: Text('Lỗi: $err')),
           ),
 
@@ -114,11 +118,13 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Biểu đồ doanh thu tuần qua
           weeklyReportAsync.when(
             data: (weeklyData) => _buildWeeklyChart(weeklyData),
-            loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryGold)),
+            loading: () => const Center(
+              child: CircularProgressIndicator(color: AppTheme.primaryGold),
+            ),
             error: (err, stack) => Center(child: Text('Lỗi tải biểu đồ: $err')),
           ),
         ],
@@ -137,11 +143,18 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Xem báo cáo ngày:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                const Text(
+                  'Xem báo cáo ngày:',
+                  style: TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   format.format(_selectedDate),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textMain),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textMain,
+                  ),
                 ),
               ],
             ),
@@ -191,7 +204,10 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 gradient: LinearGradient(
-                  colors: [AppTheme.cardBg, AppTheme.primaryGold.withOpacity(0.05)],
+                  colors: [
+                    AppTheme.cardBg,
+                    AppTheme.primaryGold.withValues(alpha: 0.05),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -199,15 +215,26 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.attach_money, color: AppTheme.primaryGold, size: 28),
+                  const Icon(
+                    Icons.attach_money,
+                    color: AppTheme.primaryGold,
+                    size: 28,
+                  ),
                   const SizedBox(height: 12),
-                  const Text('Doanh thu', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                  const Text(
+                    'Doanh thu',
+                    style: TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                  ),
                   const SizedBox(height: 4),
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
                       _currencyFormat.format(revenue),
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryGold),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryGold,
+                      ),
                     ),
                   ),
                 ],
@@ -223,7 +250,10 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 gradient: LinearGradient(
-                  colors: [AppTheme.cardBg, AppTheme.secondaryAmber.withOpacity(0.05)],
+                  colors: [
+                    AppTheme.cardBg,
+                    AppTheme.secondaryAmber.withValues(alpha: 0.05),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -231,13 +261,24 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.receipt_long, color: AppTheme.secondaryAmber, size: 28),
+                  const Icon(
+                    Icons.receipt_long,
+                    color: AppTheme.secondaryAmber,
+                    size: 28,
+                  ),
                   const SizedBox(height: 12),
-                  const Text('Tổng hóa đơn', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                  const Text(
+                    'Tổng hóa đơn',
+                    style: TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     '$ordersCount',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.secondaryAmber),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.secondaryAmber,
+                    ),
                   ),
                 ],
               ),
@@ -269,16 +310,27 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
       itemCount: orders.length,
       itemBuilder: (context, index) {
         final order = orders[index];
-        final timeStr = order.completedAt != null ? DateFormat('HH:mm').format(order.completedAt!) : '--:--';
-        
+        final timeStr = order.completedAt != null
+            ? DateFormat('HH:mm').format(order.completedAt!)
+            : '--:--';
+
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
-            title: Text('Hóa đơn #${order.id}', style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('Thanh toán lúc: $timeStr', style: const TextStyle(color: AppTheme.textMuted, fontSize: 12)),
+            title: Text(
+              'Hóa đơn #${order.id}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              'Thanh toán lúc: $timeStr',
+              style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
+            ),
             trailing: Text(
               _currencyFormat.format(order.totalAmount),
-              style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryGold),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: AppTheme.primaryGold,
+              ),
             ),
             onTap: () => _showOrderDetailsDialog(context, order),
           ),
@@ -292,7 +344,12 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(24.0),
-          child: Center(child: Text('Không có dữ liệu 7 ngày qua', style: TextStyle(color: AppTheme.textMuted))),
+          child: Center(
+            child: Text(
+              'Không có dữ liệu 7 ngày qua',
+              style: TextStyle(color: AppTheme.textMuted),
+            ),
+          ),
         ),
       );
     }
@@ -320,8 +377,14 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    day.totalRevenue > 0 ? '${(day.totalRevenue / 1000).toStringAsFixed(0)}k' : '',
-                    style: const TextStyle(fontSize: 9, color: AppTheme.primaryGold, fontWeight: FontWeight.w600),
+                    day.totalRevenue > 0
+                        ? '${(day.totalRevenue / 1000).toStringAsFixed(0)}k'
+                        : '',
+                    style: const TextStyle(
+                      fontSize: 9,
+                      color: AppTheme.primaryGold,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Container(
@@ -336,21 +399,28 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
                       borderRadius: BorderRadius.circular(6),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.primaryGold.withOpacity(0.2),
+                          color: AppTheme.primaryGold.withValues(alpha: 0.2),
                           blurRadius: 4,
                           offset: const Offset(0, -1),
-                        )
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     dayOfWeek,
-                    style: const TextStyle(fontSize: 10, color: AppTheme.textMain, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppTheme.textMain,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
                     dayStr,
-                    style: const TextStyle(fontSize: 8, color: AppTheme.textMuted),
+                    style: const TextStyle(
+                      fontSize: 8,
+                      color: AppTheme.textMuted,
+                    ),
                   ),
                 ],
               );
@@ -366,7 +436,10 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.cardBg,
-        title: Text('CHI TIẾT HÓA ĐƠN #${order.id}', style: const TextStyle(color: AppTheme.primaryGold)),
+        title: Text(
+          'CHI TIẾT HÓA ĐƠN #${order.id}',
+          style: const TextStyle(color: AppTheme.primaryGold),
+        ),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.builder(
@@ -375,9 +448,18 @@ class _DailyRevenueTabState extends ConsumerState<_DailyRevenueTab> {
             itemBuilder: (context, index) {
               final item = order.items[index];
               return ListTile(
-                title: Text(item.menuItem.name, style: const TextStyle(color: AppTheme.textMain)),
+                title: Text(
+                  item.menuItem.name,
+                  style: const TextStyle(color: AppTheme.textMain),
+                ),
                 subtitle: item.note != null && item.note!.isNotEmpty
-                    ? Text('Ghi chú: ${item.note}', style: const TextStyle(color: AppTheme.secondaryAmber, fontSize: 11))
+                    ? Text(
+                        'Ghi chú: ${item.note}',
+                        style: const TextStyle(
+                          color: AppTheme.secondaryAmber,
+                          fontSize: 11,
+                        ),
+                      )
                     : null,
                 trailing: Text(
                   '${item.quantity} x ${_currencyFormat.format(item.priceAtOrder)}',
@@ -405,7 +487,8 @@ class _FinancialReportTab extends ConsumerStatefulWidget {
   const _FinancialReportTab();
 
   @override
-  ConsumerState<_FinancialReportTab> createState() => _FinancialReportTabState();
+  ConsumerState<_FinancialReportTab> createState() =>
+      _FinancialReportTabState();
 }
 
 class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
@@ -423,7 +506,9 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
 
   @override
   Widget build(BuildContext context) {
-    final financialReportAsync = ref.watch(financialReportProvider(_startDate, _endDate));
+    final financialReportAsync = ref.watch(
+      financialReportProvider(_startDate, _endDate),
+    );
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -454,7 +539,9 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
                 _buildDrinkStatsList(report.items),
               ],
             ),
-            loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryGold)),
+            loading: () => const Center(
+              child: CircularProgressIndicator(color: AppTheme.primaryGold),
+            ),
             error: (err, stack) => Center(child: Text('Lỗi: $err')),
           ),
         ],
@@ -474,13 +561,20 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Khoảng thời gian báo cáo:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                  const Text(
+                    'Khoảng thời gian báo cáo:',
+                    style: TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                  ),
                   const SizedBox(height: 4),
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
                       '${format.format(_startDate)} - ${format.format(_endDate)}',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textMain),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textMain,
+                      ),
                     ),
                   ),
                 ],
@@ -493,7 +587,10 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
               onPressed: () async {
                 final picked = await showDateRangePicker(
                   context: context,
-                  initialDateRange: DateTimeRange(start: _startDate, end: _endDate),
+                  initialDateRange: DateTimeRange(
+                    start: _startDate,
+                    end: _endDate,
+                  ),
                   firstDate: DateTime(2025),
                   lastDate: DateTime.now().add(const Duration(days: 365)),
                   builder: (context, child) {
@@ -525,7 +622,9 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
   }
 
   Widget _buildOverviewCards(FinancialReportEntity report) {
-    final profitColor = report.totalProfit >= 0 ? AppTheme.accentNeonGreen : AppTheme.accentNeonRed;
+    final profitColor = report.totalProfit >= 0
+        ? AppTheme.accentNeonGreen
+        : AppTheme.accentNeonRed;
     final profitPrefix = report.totalProfit >= 0 ? '+' : '';
 
     return Column(
@@ -559,14 +658,14 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               gradient: LinearGradient(
-                colors: [
-                  AppTheme.cardBg,
-                  profitColor.withOpacity(0.08),
-                ],
+                colors: [AppTheme.cardBg, profitColor.withValues(alpha: 0.08)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              border: Border.all(color: profitColor.withOpacity(0.3), width: 1.5),
+              border: Border.all(
+                color: profitColor.withValues(alpha: 0.3),
+                width: 1.5,
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -574,9 +673,11 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
                 Row(
                   children: [
                     CircleAvatar(
-                      backgroundColor: profitColor.withOpacity(0.15),
+                      backgroundColor: profitColor.withValues(alpha: 0.15),
                       child: Icon(
-                        report.totalProfit >= 0 ? Icons.monetization_on : Icons.money_off,
+                        report.totalProfit >= 0
+                            ? Icons.monetization_on
+                            : Icons.money_off,
                         color: profitColor,
                       ),
                     ),
@@ -586,7 +687,10 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
                       children: [
                         const Text(
                           'Tổng Lợi nhuận',
-                          style: TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                          style: TextStyle(
+                            color: AppTheme.textMuted,
+                            fontSize: 13,
+                          ),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -602,9 +706,12 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: profitColor.withOpacity(0.15),
+                    color: profitColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -637,7 +744,7 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
-            colors: [AppTheme.cardBg, iconColor.withOpacity(0.04)],
+            colors: [AppTheme.cardBg, iconColor.withValues(alpha: 0.04)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -647,13 +754,20 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
           children: [
             Icon(icon, color: iconColor, size: 28),
             const SizedBox(height: 12),
-            Text(title, style: const TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+            Text(
+              title,
+              style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+            ),
             const SizedBox(height: 4),
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
                 value,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: iconColor),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: iconColor,
+                ),
               ),
             ),
           ],
@@ -683,7 +797,9 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        final profitColor = item.profit >= 0 ? AppTheme.accentNeonGreen : AppTheme.accentNeonRed;
+        final profitColor = item.profit >= 0
+            ? AppTheme.accentNeonGreen
+            : AppTheme.accentNeonRed;
         final profitPrefix = item.profit >= 0 ? '+' : '';
 
         return Card(
@@ -709,9 +825,12 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                        color: profitColor.withOpacity(0.12),
+                        color: profitColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -728,7 +847,7 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
                 const SizedBox(height: 12),
                 const Divider(color: AppTheme.borderStroke, height: 1),
                 const SizedBox(height: 12),
-                
+
                 // Chi tiết Doanh thu & Chi phí
                 Row(
                   children: [
@@ -738,19 +857,36 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.arrow_upward, color: AppTheme.accentNeonGreen, size: 14),
+                              Icon(
+                                Icons.arrow_upward,
+                                color: AppTheme.accentNeonGreen,
+                                size: 14,
+                              ),
                               SizedBox(width: 4),
-                              Text('Doanh thu', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+                              Text(
+                                'Doanh thu',
+                                style: TextStyle(
+                                  color: AppTheme.textMuted,
+                                  fontSize: 11,
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '+${_currencyFormat.format(item.revenue)}',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textMain),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: AppTheme.textMain,
+                            ),
                           ),
                           Text(
                             'Đã bán: ${item.quantitySold}',
-                            style: const TextStyle(fontSize: 10, color: AppTheme.textMuted),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppTheme.textMuted,
+                            ),
                           ),
                         ],
                       ),
@@ -767,19 +903,36 @@ class _FinancialReportTabState extends ConsumerState<_FinancialReportTab> {
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.arrow_downward, color: AppTheme.accentNeonRed, size: 14),
+                              Icon(
+                                Icons.arrow_downward,
+                                color: AppTheme.accentNeonRed,
+                                size: 14,
+                              ),
                               SizedBox(width: 4),
-                              Text('Chi phí nhập', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+                              Text(
+                                'Chi phí nhập',
+                                style: TextStyle(
+                                  color: AppTheme.textMuted,
+                                  fontSize: 11,
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '-${_currencyFormat.format(item.cost)}',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textMain),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: AppTheme.textMain,
+                            ),
                           ),
                           Text(
                             'Đã nhập: ${item.quantityImported}',
-                            style: const TextStyle(fontSize: 10, color: AppTheme.textMuted),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppTheme.textMuted,
+                            ),
                           ),
                         ],
                       ),
@@ -834,14 +987,26 @@ class _BestSellersTab extends ConsumerWidget {
             Widget rankWidget;
             Color? rankColor;
             if (rank == 1) {
-              rankWidget = const Icon(Icons.emoji_events, color: Colors.amber, size: 28);
-              rankColor = Colors.amber.withOpacity(0.08);
+              rankWidget = const Icon(
+                Icons.emoji_events,
+                color: Colors.amber,
+                size: 28,
+              );
+              rankColor = Colors.amber.withValues(alpha: 0.08);
             } else if (rank == 2) {
-              rankWidget = const Icon(Icons.emoji_events, color: Color(0xFFC0C0C0), size: 28);
-              rankColor = const Color(0xFFC0C0C0).withOpacity(0.06);
+              rankWidget = const Icon(
+                Icons.emoji_events,
+                color: Color(0xFFC0C0C0),
+                size: 28,
+              );
+              rankColor = const Color(0xFFC0C0C0).withValues(alpha: 0.06);
             } else if (rank == 3) {
-              rankWidget = const Icon(Icons.emoji_events, color: Color(0xFFCD7F32), size: 28);
-              rankColor = const Color(0xFFCD7F32).withOpacity(0.04);
+              rankWidget = const Icon(
+                Icons.emoji_events,
+                color: Color(0xFFCD7F32),
+                size: 28,
+              );
+              rankColor = const Color(0xFFCD7F32).withValues(alpha: 0.04);
             } else {
               rankWidget = CircleAvatar(
                 radius: 14,
@@ -932,7 +1097,10 @@ class _BestSellersTab extends ConsumerWidget {
         child: CircularProgressIndicator(color: AppTheme.primaryGold),
       ),
       error: (err, stack) => Center(
-        child: Text('Lỗi: $err', style: const TextStyle(color: AppTheme.accentNeonRed)),
+        child: Text(
+          'Lỗi: $err',
+          style: const TextStyle(color: AppTheme.accentNeonRed),
+        ),
       ),
     );
   }

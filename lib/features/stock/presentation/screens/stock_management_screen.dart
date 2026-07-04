@@ -144,8 +144,8 @@ class _StockManagementScreenState extends ConsumerState<StockManagementScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: isOutOfStock
-                        ? AppTheme.accentNeonRed.withOpacity(0.15)
-                        : AppTheme.accentNeonGreen.withOpacity(0.15),
+                        ? AppTheme.accentNeonRed.withValues(alpha: 0.15)
+                        : AppTheme.accentNeonGreen.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -281,8 +281,8 @@ class _StockManagementScreenState extends ConsumerState<StockManagementScreen> {
                                 child: ListTile(
                                   leading: CircleAvatar(
                                     backgroundColor: isIn
-                                        ? AppTheme.accentNeonGreen.withOpacity(0.1)
-                                        : AppTheme.accentNeonRed.withOpacity(0.1),
+                                        ? AppTheme.accentNeonGreen.withValues(alpha: 0.1)
+                                        : AppTheme.accentNeonRed.withValues(alpha: 0.1),
                                     child: Icon(
                                       isIn ? Icons.arrow_downward : Icons.arrow_upward,
                                       color: isIn ? AppTheme.accentNeonGreen : AppTheme.accentNeonRed,

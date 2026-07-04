@@ -1,9 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:mongo_dart/mongo_dart.dart' show where;
 import '../../domain/entities/daily_revenue_entity.dart';
 import '../../domain/entities/financial_report_entity.dart';
 import '../../domain/entities/best_seller_entity.dart';
-import '../../../order/domain/entities/order_entity.dart';
 import '../../../../core/database/database_provider.dart';
 import '../../../../core/providers/usecase_providers.dart';
 

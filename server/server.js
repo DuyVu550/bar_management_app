@@ -299,13 +299,32 @@ app.post('/api/stock-transactions', async (req, res) => {
     const { menuItemId, menuItemName, type, quantity, price, note } = req.body;
     const nextId = await getNextId('stock_transactions');
     const now = new Date();
+
+    let txPrice = parseFloat(price);
+    if (type === 'out' && (!txPrice || txPrice === 0)) {
+      // Tìm giao dịch nhập kho 'in' gần nhất của nguyên liệu này
+      const latestInTx = await db.collection('stock_transactions').findOne(
+        { menuItemId: parseInt(menuItemId), type: 'in' },
+        { sort: { date: -1 } }
+      );
+      if (latestInTx) {
+        txPrice = latestInTx.price;
+      } else {
+        // Dự phòng: Lấy từ menu_items
+        const item = await db.collection('menu_items').findOne({ id: parseInt(menuItemId) });
+        if (item) {
+          txPrice = item.price;
+        }
+      }
+    }
+
     const newTx = {
       id: nextId,
       menuItemId: parseInt(menuItemId),
       menuItemName,
       type, // 'in' hoặc 'out'
       quantity: parseInt(quantity),
-      price: parseFloat(price),
+      price: txPrice || 0.0,
       date: now.toISOString(),
       note: note || ''
     };

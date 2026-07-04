@@ -129,8 +129,8 @@ class MenuManagementScreen extends ConsumerWidget {
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: item.isAvailable
-                                    ? AppTheme.accentNeonGreen.withOpacity(0.15)
-                                    : AppTheme.accentNeonRed.withOpacity(0.15),
+                                    ? AppTheme.accentNeonGreen.withValues(alpha: 0.15)
+                                    : AppTheme.accentNeonRed.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -266,7 +266,7 @@ class MenuManagementScreen extends ConsumerWidget {
                                           ? 'Đồ ăn 🍔'
                                           : 'Snack 🍟'),
                                   selected: isSel,
-                                  selectedColor: AppTheme.primaryGold.withOpacity(0.2),
+                                  selectedColor: AppTheme.primaryGold.withValues(alpha: 0.2),
                                   labelStyle: TextStyle(
                                     color: isSel ? AppTheme.primaryGold : AppTheme.textMuted,
                                     fontSize: 12,
@@ -281,7 +281,7 @@ class MenuManagementScreen extends ConsumerWidget {
                             const Text('Đơn vị tính:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String>(
-                              value: selectedUnit,
+                              initialValue: selectedUnit,
                               dropdownColor: AppTheme.cardBg,
                               decoration: InputDecoration(
                                 filled: true,
@@ -307,8 +307,8 @@ class MenuManagementScreen extends ConsumerWidget {
                                   const Text('Trạng thái phục vụ:', style: TextStyle(color: AppTheme.textMain)),
                                   Switch(
                                     value: isAvailable,
-                                    activeColor: AppTheme.accentNeonGreen,
-                                    inactiveTrackColor: AppTheme.accentNeonRed.withOpacity(0.2),
+                                    activeThumbColor: AppTheme.accentNeonGreen,
+                                    inactiveTrackColor: AppTheme.accentNeonRed.withValues(alpha: 0.2),
                                     onChanged: (val) => setState(() => isAvailable = val),
                                   ),
                                 ],

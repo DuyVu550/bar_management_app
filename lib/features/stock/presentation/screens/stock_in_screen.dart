@@ -169,10 +169,10 @@ class StockInScreen extends ConsumerWidget {
                             itemBuilder: (context, idx) {
                               final tx = dailyTxs[idx];
                               return ListTile(
-                                leading: CircleAvatar(
+                                leading: const CircleAvatar(
                                   backgroundColor: AppTheme.darkBg,
                                   radius: 18,
-                                  child: const Icon(Icons.arrow_downward, color: AppTheme.accentNeonGreen, size: 18),
+                                  child: Icon(Icons.arrow_downward, color: AppTheme.accentNeonGreen, size: 18),
                                 ),
                                 title: Text(
                                   tx.menuItemName,
@@ -300,7 +300,7 @@ class StockInScreen extends ConsumerWidget {
                                   const Text('Nguyên liệu nhập:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
                                   const SizedBox(height: 8),
                                   DropdownButtonFormField<int>(
-                                    value: selectedId,
+                                    initialValue: selectedId,
                                     dropdownColor: AppTheme.cardBg,
                                     decoration: InputDecoration(
                                       filled: true,
@@ -352,7 +352,7 @@ class StockInScreen extends ConsumerWidget {
                                     const Text('Đơn vị tính:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
                                     const SizedBox(height: 8),
                                     DropdownButtonFormField<String>(
-                                      value: selectedCustomUnit,
+                                      initialValue: selectedCustomUnit,
                                       dropdownColor: AppTheme.cardBg,
                                       decoration: InputDecoration(
                                         filled: true,

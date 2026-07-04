@@ -21,20 +21,22 @@ class ConsumptionScreen extends ConsumerWidget {
     final dateFormat = DateFormat('dd/MM/yyyy');
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('TIÊU THỤ ĐỒ UỐNG & LỊCH SỬ'),
-      ),
+      appBar: AppBar(title: const Text('TIÊU THỤ & LỊCH SỬ')),
       body: Column(
         children: [
           // Thanh tìm kiếm theo tên đồ uống tiêu thụ
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
-              onChanged: (val) => ref.read(stockSearchQueryProvider.notifier).setQuery(val),
+              onChanged: (val) =>
+                  ref.read(stockSearchQueryProvider.notifier).setQuery(val),
               decoration: InputDecoration(
-                hintText: 'Tìm kiếm theo tên đồ uống tiêu thụ...',
+                hintText: 'Tìm kiếm tiêu thụ...',
                 hintStyle: const TextStyle(color: AppTheme.textMuted),
-                prefixIcon: const Icon(Icons.search, color: AppTheme.primaryGold),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: AppTheme.primaryGold,
+                ),
                 filled: true,
                 fillColor: AppTheme.cardBg,
                 border: OutlineInputBorder(
@@ -56,15 +58,23 @@ class ConsumptionScreen extends ConsumerWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.outbox_outlined, size: 80, color: AppTheme.textMuted),
+                        const Icon(
+                          Icons.outbox_outlined,
+                          size: 80,
+                          color: AppTheme.textMuted,
+                        ),
                         const SizedBox(height: 16),
                         const Text(
-                          'Chưa có lịch sử tiêu thụ đồ uống nào',
-                          style: TextStyle(color: AppTheme.textMuted, fontSize: 16),
+                          'Chưa có lịch sử tiêu thụ nào',
+                          style: TextStyle(
+                            color: AppTheme.textMuted,
+                            fontSize: 16,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton.icon(
-                          onPressed: () => _showAddConsumptionDialog(context, ref),
+                          onPressed: () =>
+                              _showAddConsumptionDialog(context, ref),
                           icon: const Icon(Icons.add),
                           label: const Text('Ghi nhận tiêu thụ mới'),
                         ),
@@ -83,7 +93,8 @@ class ConsumptionScreen extends ConsumerWidget {
                 }
 
                 // Gom nhóm giao dịch tiêu thụ theo ngày
-                final Map<String, List<StockTransactionEntity>> groupedTransactions = {};
+                final Map<String, List<StockTransactionEntity>>
+                groupedTransactions = {};
                 for (final tx in filteredConsumption) {
                   final key = dateFormat.format(tx.date);
                   groupedTransactions.putIfAbsent(key, () => []).add(tx);
@@ -99,15 +110,24 @@ class ConsumptionScreen extends ConsumerWidget {
                     final dailyTxs = groupedTransactions[dateStr]!;
 
                     // Tính tổng số lượng & giá trị tiêu thụ trong ngày
-                    final totalQty = dailyTxs.fold<int>(0, (sum, tx) => sum + tx.quantity);
-                    final totalValue = dailyTxs.fold<double>(0.0, (sum, tx) => sum + (tx.quantity * tx.price));
+                    final totalQty = dailyTxs.fold<int>(
+                      0,
+                      (sum, tx) => sum + tx.quantity,
+                    );
+                    final totalValue = dailyTxs.fold<double>(
+                      0.0,
+                      (sum, tx) => sum + (tx.quantity * tx.price),
+                    );
 
                     return Card(
                       margin: const EdgeInsets.only(bottom: 20),
                       color: AppTheme.cardBg,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: const BorderSide(color: AppTheme.borderStroke, width: 1),
+                        side: const BorderSide(
+                          color: AppTheme.borderStroke,
+                          width: 1,
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +147,11 @@ class ConsumptionScreen extends ConsumerWidget {
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(Icons.calendar_today, color: AppTheme.primaryGold, size: 18),
+                                    const Icon(
+                                      Icons.calendar_today,
+                                      color: AppTheme.primaryGold,
+                                      size: 18,
+                                    ),
                                     const SizedBox(width: 8),
                                     Text(
                                       'Ngày $dateStr',
@@ -144,7 +168,10 @@ class ConsumptionScreen extends ConsumerWidget {
                                   children: [
                                     Text(
                                       'SL: $totalQty',
-                                      style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
+                                      style: const TextStyle(
+                                        color: AppTheme.textMuted,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                     Text(
                                       'Tổng trị giá: ${currencyFormat.format(totalValue)}',
@@ -165,30 +192,47 @@ class ConsumptionScreen extends ConsumerWidget {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: dailyTxs.length,
-                            separatorBuilder: (context, index) => const Divider(color: AppTheme.borderStroke, height: 1),
+                            separatorBuilder: (context, index) => const Divider(
+                              color: AppTheme.borderStroke,
+                              height: 1,
+                            ),
                             itemBuilder: (context, idx) {
                               final tx = dailyTxs[idx];
                               return ListTile(
-                                leading: CircleAvatar(
+                                leading: const CircleAvatar(
                                   backgroundColor: AppTheme.darkBg,
                                   radius: 18,
-                                  child: const Icon(Icons.arrow_upward, color: AppTheme.accentNeonRed, size: 18),
+                                  child: Icon(
+                                    Icons.arrow_upward,
+                                    color: AppTheme.accentNeonRed,
+                                    size: 18,
+                                  ),
                                 ),
                                 title: Text(
                                   tx.menuItemName,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMain),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.textMain,
+                                  ),
                                 ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Số lượng: ${tx.quantity} • Giá bán: ${currencyFormat.format(tx.price)}',
-                                      style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                                      style: const TextStyle(
+                                        color: AppTheme.textMuted,
+                                        fontSize: 13,
+                                      ),
                                     ),
                                     if (tx.note.isNotEmpty)
                                       Text(
                                         'Ghi chú: ${tx.note}',
-                                        style: const TextStyle(color: Colors.grey, fontSize: 12, fontStyle: FontStyle.italic),
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                          fontStyle: FontStyle.italic,
+                                        ),
                                       ),
                                   ],
                                 ),
@@ -196,12 +240,25 @@ class ConsumptionScreen extends ConsumerWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      currencyFormat.format(tx.quantity * tx.price),
-                                      style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w500),
+                                      currencyFormat.format(
+                                        tx.quantity * tx.price,
+                                      ),
+                                      style: const TextStyle(
+                                        color: AppTheme.textMain,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.delete_outline, color: AppTheme.accentNeonRed, size: 20),
-                                      onPressed: () => _showDeleteConfirmDialog(context, ref, tx),
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: AppTheme.accentNeonRed,
+                                        size: 20,
+                                      ),
+                                      onPressed: () => _showDeleteConfirmDialog(
+                                        context,
+                                        ref,
+                                        tx,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -241,7 +298,6 @@ class ConsumptionScreen extends ConsumerWidget {
     final formKey = GlobalKey<FormState>();
     int? selectedId;
     final qtyController = TextEditingController();
-    final priceController = TextEditingController();
     final noteController = TextEditingController();
     final customNameController = TextEditingController();
     String selectedCustomUnit = 'Chai';
@@ -261,10 +317,24 @@ class ConsumptionScreen extends ConsumerWidget {
                 return unitsAsync.when(
                   data: (units) {
                     // Chỉ lấy các mặt hàng thuộc nhóm Nguyên liệu (ingredient)
-                    final ingredients = items.where((i) => i.category == MenuCategory.ingredient).toList();
+                    final ingredients = items
+                        .where((i) => i.category == MenuCategory.ingredient)
+                        .toList();
                     final unitNames = units.map((u) => u.name).toList();
                     if (unitNames.isEmpty) {
-                      unitNames.addAll(['Chai', 'Lon', 'Ly', 'Kg', 'Bao', 'Thùng', 'Hộp', 'Gói', 'Quả', 'Đĩa', 'Phần']);
+                      unitNames.addAll([
+                        'Chai',
+                        'Lon',
+                        'Ly',
+                        'Kg',
+                        'Bao',
+                        'Thùng',
+                        'Hộp',
+                        'Gói',
+                        'Quả',
+                        'Đĩa',
+                        'Phần',
+                      ]);
                     }
 
                     return StatefulBuilder(
@@ -272,24 +342,27 @@ class ConsumptionScreen extends ConsumerWidget {
                         if (!isInitialized) {
                           if (ingredients.isNotEmpty) {
                             selectedId = ingredients.first.id;
-                            priceController.text = '${ingredients.first.price.toInt()}';
                             isAddingNew = false;
                           } else {
                             selectedId = -1;
-                            priceController.text = '0';
                             isAddingNew = true;
                           }
                           selectedCustomUnit = unitNames.first;
                           isInitialized = true;
                         }
 
-                        final canSubmit = isAddingNew || (selectedId != null && selectedId != -1);
+                        final canSubmit =
+                            isAddingNew ||
+                            (selectedId != null && selectedId != -1);
 
                         return AlertDialog(
                           backgroundColor: AppTheme.cardBg,
                           title: const Text(
-                            'PHIẾU TIÊU THỤ ĐỒ UỐNG',
-                            style: TextStyle(color: AppTheme.primaryGold, fontWeight: FontWeight.bold),
+                            'PHIẾU TIÊU THỤ',
+                            style: TextStyle(
+                              color: AppTheme.primaryGold,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           content: Form(
                             key: formKey,
@@ -299,29 +372,44 @@ class ConsumptionScreen extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // Dropdown chọn nguyên liệu
-                                  const Text('Nguyên liệu tiêu thụ:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                                  const Text(
+                                    'Nguyên liệu tiêu thụ:',
+                                    style: TextStyle(
+                                      color: AppTheme.textMuted,
+                                      fontSize: 13,
+                                    ),
+                                  ),
                                   const SizedBox(height: 8),
                                   DropdownButtonFormField<int>(
-                                    value: selectedId,
+                                    initialValue: selectedId,
                                     dropdownColor: AppTheme.cardBg,
                                     decoration: InputDecoration(
                                       filled: true,
                                       fillColor: AppTheme.darkBg,
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
                                     ),
-                                    style: const TextStyle(color: AppTheme.textMain),
+                                    style: const TextStyle(
+                                      color: AppTheme.textMain,
+                                    ),
                                     items: [
                                       const DropdownMenuItem<int>(
                                         value: -1,
                                         child: Text(
                                           '+ Thêm nguyên liệu mới...',
-                                          style: TextStyle(color: AppTheme.primaryGold, fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                            color: AppTheme.primaryGold,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                       ...ingredients.map((item) {
                                         return DropdownMenuItem<int>(
                                           value: item.id,
-                                          child: Text('${item.name} (${item.unit}) - Tồn: ${item.stock}'),
+                                          child: Text(
+                                            '${item.name} (${item.unit}) - Tồn: ${item.stock}',
+                                          ),
                                         );
                                       }),
                                     ],
@@ -330,12 +418,6 @@ class ConsumptionScreen extends ConsumerWidget {
                                         setState(() {
                                           selectedId = val;
                                           isAddingNew = (val == -1);
-                                          if (!isAddingNew) {
-                                            final item = ingredients.firstWhere((i) => i.id == val);
-                                            priceController.text = '${item.price.toInt()}';
-                                          } else {
-                                            priceController.text = '0';
-                                          }
                                         });
                                       }
                                     },
@@ -346,28 +428,54 @@ class ConsumptionScreen extends ConsumerWidget {
                                       controller: customNameController,
                                       decoration: const InputDecoration(
                                         labelText: 'Tên nguyên liệu mới',
-                                        labelStyle: TextStyle(color: AppTheme.textMuted),
-                                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
-                                        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
+                                        labelStyle: TextStyle(
+                                          color: AppTheme.textMuted,
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: AppTheme.borderStroke,
+                                          ),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: AppTheme.primaryGold,
+                                          ),
+                                        ),
                                       ),
-                                      style: const TextStyle(color: AppTheme.textMain),
+                                      style: const TextStyle(
+                                        color: AppTheme.textMain,
+                                      ),
                                       validator: (val) {
-                                        if (val == null || val.trim().isEmpty) return 'Vui lòng nhập tên nguyên liệu!';
+                                        if (val == null || val.trim().isEmpty) {
+                                          return 'Vui lòng nhập tên nguyên liệu!';
+                                        }
                                         return null;
                                       },
                                     ),
                                     const SizedBox(height: 16),
-                                    const Text('Đơn vị tính:', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                                    const Text(
+                                      'Đơn vị tính:',
+                                      style: TextStyle(
+                                        color: AppTheme.textMuted,
+                                        fontSize: 13,
+                                      ),
+                                    ),
                                     const SizedBox(height: 8),
                                     DropdownButtonFormField<String>(
-                                      value: selectedCustomUnit,
+                                      initialValue: selectedCustomUnit,
                                       dropdownColor: AppTheme.cardBg,
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: AppTheme.darkBg,
-                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
                                       ),
-                                      style: const TextStyle(color: AppTheme.textMain),
+                                      style: const TextStyle(
+                                        color: AppTheme.textMain,
+                                      ),
                                       items: unitNames.map((u) {
                                         return DropdownMenuItem<String>(
                                           value: u,
@@ -391,17 +499,36 @@ class ConsumptionScreen extends ConsumerWidget {
                                     keyboardType: TextInputType.number,
                                     decoration: const InputDecoration(
                                       labelText: 'Số lượng tiêu thụ',
-                                      labelStyle: TextStyle(color: AppTheme.textMuted),
-                                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
-                                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
+                                      labelStyle: TextStyle(
+                                        color: AppTheme.textMuted,
+                                      ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: AppTheme.borderStroke,
+                                        ),
+                                      ),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: AppTheme.primaryGold,
+                                        ),
+                                      ),
                                     ),
-                                    style: const TextStyle(color: AppTheme.textMain),
+                                    style: const TextStyle(
+                                      color: AppTheme.textMain,
+                                    ),
                                     validator: (val) {
-                                      if (val == null || val.trim().isEmpty) return 'Vui lòng nhập số lượng!';
+                                      if (val == null || val.trim().isEmpty) {
+                                        return 'Vui lòng nhập số lượng!';
+                                      }
                                       final qty = int.tryParse(val) ?? 0;
-                                      if (qty <= 0) return 'Số lượng phải lớn hơn 0!';
+                                      if (qty <= 0) {
+                                        return 'Số lượng phải lớn hơn 0!';
+                                      }
                                       if (!isAddingNew && selectedId != -1) {
-                                        final selectedItem = ingredients.firstWhere((i) => i.id == selectedId);
+                                        final selectedItem = ingredients
+                                            .firstWhere(
+                                              (i) => i.id == selectedId,
+                                            );
                                         if (qty > selectedItem.stock) {
                                           return 'Vượt quá số lượng tồn kho (Tồn: ${selectedItem.stock})!';
                                         }
@@ -410,25 +537,6 @@ class ConsumptionScreen extends ConsumerWidget {
                                     },
                                   ),
                                   const SizedBox(height: 16),
-
-                                  // Ô nhập giá bán
-                                  TextFormField(
-                                    controller: priceController,
-                                    keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Đơn giá bán (đ)',
-                                      labelStyle: TextStyle(color: AppTheme.textMuted),
-                                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
-                                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
-                                    ),
-                                    style: const TextStyle(color: AppTheme.textMain),
-                                    validator: (val) {
-                                      if (val == null || val.trim().isEmpty) return 'Vui lòng nhập đơn giá!';
-                                      final price = double.tryParse(val) ?? 0.0;
-                                      if (price < 0) return 'Đơn giá không được âm!';
-                                      return null;
-                                    },
-                                  ),
                                   const SizedBox(height: 16),
 
                                   // Ô ghi chú
@@ -436,11 +544,23 @@ class ConsumptionScreen extends ConsumerWidget {
                                     controller: noteController,
                                     decoration: const InputDecoration(
                                       labelText: 'Ghi chú',
-                                      labelStyle: TextStyle(color: AppTheme.textMuted),
-                                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.borderStroke)),
-                                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryGold)),
+                                      labelStyle: TextStyle(
+                                        color: AppTheme.textMuted,
+                                      ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: AppTheme.borderStroke,
+                                        ),
+                                      ),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: AppTheme.primaryGold,
+                                        ),
+                                      ),
                                     ),
-                                    style: const TextStyle(color: AppTheme.textMain),
+                                    style: const TextStyle(
+                                      color: AppTheme.textMain,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -449,40 +569,55 @@ class ConsumptionScreen extends ConsumerWidget {
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text('HỦY', style: TextStyle(color: AppTheme.textMuted)),
+                              child: const Text(
+                                'HỦY',
+                                style: TextStyle(color: AppTheme.textMuted),
+                              ),
                             ),
                             if (canSubmit)
                               ElevatedButton(
                                 onPressed: () async {
                                   if (formKey.currentState!.validate()) {
-                                    final qty = int.parse(qtyController.text.trim());
-                                    final price = double.parse(priceController.text.trim());
+                                    final qty = int.parse(
+                                      qtyController.text.trim(),
+                                    );
                                     final note = noteController.text.trim();
 
                                     int itemId = selectedId ?? -1;
+                                    double price = 0.0;
                                     String itemName = '';
 
                                     if (isAddingNew) {
-                                      final newName = customNameController.text.trim();
+                                      final newName = customNameController.text
+                                          .trim();
                                       final db = ref.read(databaseProvider);
                                       await db.ensureConnected();
-                                      final resItem = await db.dio.post('/api/menu-items', data: {
-                                        'name': newName,
-                                        'price': price,
-                                        'category': MenuCategory.ingredient.name,
-                                        'unit': selectedCustomUnit,
-                                      });
+                                      final resItem = await db.dio.post(
+                                        '/api/menu-items',
+                                        data: {
+                                          'name': newName,
+                                          'price': price,
+                                          'category':
+                                              MenuCategory.ingredient.name,
+                                          'unit': selectedCustomUnit,
+                                        },
+                                      );
                                       final createdItem = resItem.data;
                                       itemId = createdItem['id'] as int;
                                       itemName = createdItem['name'] as String;
                                       db.notifyMenuChanged();
                                     } else {
-                                      final selectedItem = ingredients.firstWhere((i) => i.id == selectedId);
+                                      final selectedItem = ingredients
+                                          .firstWhere(
+                                            (i) => i.id == selectedId,
+                                          );
                                       itemId = selectedItem.id;
                                       itemName = selectedItem.name;
                                     }
 
-                                    await ref.read(stockActionsProvider.notifier).addConsumption(
+                                    await ref
+                                        .read(stockActionsProvider.notifier)
+                                        .addConsumption(
                                           menuItemId: itemId,
                                           menuItemName: itemName,
                                           quantity: qty,
@@ -503,17 +638,25 @@ class ConsumptionScreen extends ConsumerWidget {
                   loading: () => const Center(
                     child: Padding(
                       padding: EdgeInsets.all(32.0),
-                      child: CircularProgressIndicator(color: AppTheme.primaryGold),
+                      child: CircularProgressIndicator(
+                        color: AppTheme.primaryGold,
+                      ),
                     ),
                   ),
                   error: (err, _) => AlertDialog(
                     backgroundColor: AppTheme.cardBg,
-                    content: Text('Lỗi tải đơn vị: $err', style: const TextStyle(color: AppTheme.accentNeonRed)),
+                    content: Text(
+                      'Lỗi tải đơn vị: $err',
+                      style: const TextStyle(color: AppTheme.accentNeonRed),
+                    ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('HỦY', style: TextStyle(color: AppTheme.textMuted)),
-                      )
+                        child: const Text(
+                          'HỦY',
+                          style: TextStyle(color: AppTheme.textMuted),
+                        ),
+                      ),
                     ],
                   ),
                 );
@@ -526,12 +669,18 @@ class ConsumptionScreen extends ConsumerWidget {
               ),
               error: (err, _) => AlertDialog(
                 backgroundColor: AppTheme.cardBg,
-                content: Text('Lỗi: $err', style: const TextStyle(color: AppTheme.accentNeonRed)),
+                content: Text(
+                  'Lỗi: $err',
+                  style: const TextStyle(color: AppTheme.accentNeonRed),
+                ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('HỦY', style: TextStyle(color: AppTheme.textMuted)),
-                  )
+                    child: const Text(
+                      'HỦY',
+                      style: TextStyle(color: AppTheme.textMuted),
+                    ),
+                  ),
                 ],
               ),
             );
@@ -542,13 +691,23 @@ class ConsumptionScreen extends ConsumerWidget {
   }
 
   // Xác nhận xóa phiếu tiêu thụ
-  void _showDeleteConfirmDialog(BuildContext context, WidgetRef ref, StockTransactionEntity tx) {
+  void _showDeleteConfirmDialog(
+    BuildContext context,
+    WidgetRef ref,
+    StockTransactionEntity tx,
+  ) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppTheme.cardBg,
-          title: const Text('XÓA GIAO DỊCH?', style: TextStyle(color: AppTheme.accentNeonRed, fontWeight: FontWeight.bold)),
+          title: const Text(
+            'XÓA GIAO DỊCH?',
+            style: TextStyle(
+              color: AppTheme.accentNeonRed,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: Text(
             'Bạn chắc chắn muốn xóa giao dịch tiêu thụ của "${tx.menuItemName}" số lượng ${tx.quantity} chứ? Tồn kho sẽ được cộng trả lại.',
             style: const TextStyle(color: AppTheme.textMain),
@@ -556,12 +715,20 @@ class ConsumptionScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('HỦY', style: TextStyle(color: AppTheme.textMuted)),
+              child: const Text(
+                'HỦY',
+                style: TextStyle(color: AppTheme.textMuted),
+              ),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentNeonRed, foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.accentNeonRed,
+                foregroundColor: Colors.white,
+              ),
               onPressed: () async {
-                await ref.read(stockActionsProvider.notifier).deleteStockTransaction(tx.id);
+                await ref
+                    .read(stockActionsProvider.notifier)
+                    .deleteStockTransaction(tx.id);
                 if (context.mounted) Navigator.pop(context);
               },
               child: const Text('XÓA'),

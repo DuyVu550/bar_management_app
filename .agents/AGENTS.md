@@ -4,6 +4,8 @@
 - **Độ phức tạp**: Code phải ngắn gọn, cú pháp đơn giản, dễ hiểu và dễ mở rộng. Tránh viết code quá phức tạp hoặc lạm dụng cấu trúc khó đọc.
 - **Kiểm thử**: Khi thực hiện xong bất cứ chỉnh sửa hoặc tính năng nào, bắt buộc phải chạy các bài kiểm thử hoặc phân tích mã nguồn (`flutter analyze`, test case) để xác minh tính ổn định của ứng dụng.
 - **Quy trình duyệt**: Chờ User xem xét và duyệt kết quả trực tiếp trước khi thực hiện các lệnh push mã nguồn lên Git.
+- **Khởi chạy hệ thống**: Backend Server (Node.js) tại thư mục `server/` phải luôn được chạy (ở cổng 3000) trước khi chạy hoặc test ứng dụng Flutter. Nếu chưa chạy, hãy tự động khởi chạy backend bằng `npm start` trước.
+
 
 ## Quy ước Code & Naming
 - Áp dụng cấu trúc **Clean Architecture**: Phân tách rõ ràng các tầng `domain`, `data`, và `presentation` cho mỗi feature.

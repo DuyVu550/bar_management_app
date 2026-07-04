@@ -95,9 +95,9 @@ class UnitManagementScreen extends ConsumerWidget {
                         side: const BorderSide(color: AppTheme.borderStroke, width: 1),
                       ),
                       child: ListTile(
-                        leading: CircleAvatar(
+                        leading: const CircleAvatar(
                           backgroundColor: AppTheme.darkBg,
-                          child: const Icon(Icons.inventory_2_outlined, color: AppTheme.primaryGold),
+                          child: Icon(Icons.inventory_2_outlined, color: AppTheme.primaryGold),
                         ),
                         title: Text(
                           unit.name,

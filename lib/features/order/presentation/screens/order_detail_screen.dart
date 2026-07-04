@@ -6,7 +6,6 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../menu/domain/entities/menu_item_entity.dart';
 import '../../../menu/presentation/providers/menu_providers.dart';
 import '../../domain/entities/order_entity.dart';
-import '../../domain/entities/order_item_entity.dart';
 import '../providers/order_providers.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
@@ -248,7 +247,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> with Sing
       child: ChoiceChip(
         label: Text(label),
         selected: isSelected,
-        selectedColor: AppTheme.primaryGold.withOpacity(0.2),
+        selectedColor: AppTheme.primaryGold.withValues(alpha: 0.2),
         labelStyle: TextStyle(
           color: isSelected ? AppTheme.primaryGold : AppTheme.textMuted,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

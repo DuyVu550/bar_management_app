@@ -39,6 +39,7 @@
 #    - Code phải ngắn gọn, cú pháp đơn giản, dễ hiểu, dễ mở rộng.
 #    - Khi làm xong bắt buộc phải chạy các test kiểm thử (flutter analyze, test case) để xác minh tính ổn định.
 #    - Chờ User duyệt và phê duyệt kết quả trước khi thực hiện push code lên Git.
+#    - Backend Server (Node.js) tại thư mục `server/` phải luôn được chạy bằng `npm start` (cổng 3000) trước khi chạy hoặc test ứng dụng Flutter.
 #
 # ==============================================================================
 

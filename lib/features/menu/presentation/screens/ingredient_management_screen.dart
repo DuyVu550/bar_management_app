@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/menu_item_entity.dart';
 import '../providers/menu_providers.dart';
@@ -13,7 +12,6 @@ class IngredientManagementScreen extends ConsumerWidget {
     final menuItemsStream = ref.watch(menuListProvider);
     final filteredItems = ref.watch(filteredMenuListProvider);
     final searchQuery = ref.watch(menuSearchQueryProvider);
-    final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 
     return Scaffold(
       appBar: AppBar(
