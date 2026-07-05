@@ -10,11 +10,22 @@ const mongoUri = process.env.MONGODB_URI;
 app.use(cors());
 app.use(express.json());
 
+// Middleware đảm bảo kết nối DB trước khi xử lý request
+app.use(async (req, res, next) => {
+  try {
+    await connectDb();
+    next();
+  } catch (error) {
+    res.status(500).json({ error: 'Database connection failed: ' + error.message });
+  }
+});
+
 let db;
 let client;
 
 // Kết nối cơ sở dữ liệu MongoDB
 async function connectDb() {
+  if (db) return;
   try {
     client = new MongoClient(mongoUri);
     await client.connect();
@@ -22,7 +33,7 @@ async function connectDb() {
     console.log('Đã kết nối thành công tới MongoDB Atlas!');
   } catch (error) {
     console.error('Kết nối tới MongoDB thất bại:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
@@ -825,9 +836,15 @@ app.get('/api/reports/best-sellers', async (req, res) => {
   }
 });
 
-// Khởi chạy Server sau khi kết nối DB thành công
-connectDb().then(() => {
-  app.listen(port, () => {
-    console.log(`Backend Server đang chạy tại http://localhost:${port}`);
+// Khởi chạy Server sau khi kết nối DB thành công (chỉ khi chạy trực tiếp)
+if (require.main === module) {
+  connectDb().then(() => {
+    app.listen(port, () => {
+      console.log(`Backend Server đang chạy tại http://localhost:${port}`);
+    });
+  }).catch(err => {
+    console.error('Không thể khởi chạy local server:', err);
   });
-});
+}
+
+module.exports = app;

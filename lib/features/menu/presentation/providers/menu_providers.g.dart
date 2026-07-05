@@ -58,7 +58,7 @@ final menuSearchQueryProvider =
     );
 
 typedef _$MenuSearchQuery = AutoDisposeNotifier<String>;
-String _$menuActionsHash() => r'945794532cf5abe0158c0be4df5f6f378e9ada3e';
+String _$menuActionsHash() => r'c2e564cdf8aa17b67cac29b1cc426f877de386e6';
 
 /// See also [MenuActions].
 @ProviderFor(MenuActions)

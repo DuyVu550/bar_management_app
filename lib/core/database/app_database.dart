@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dio/dio.dart';
 
@@ -30,7 +31,14 @@ class AppDatabase {
   Future<void> connect() async {
     if (_isConnected) return;
     
-    final apiUrl = dotenv.env['API_URL'] ?? "http://localhost:3000";
+    String apiUrl = dotenv.env['API_URL'] ?? "http://localhost:3000";
+    if (kIsWeb) {
+      final origin = Uri.base.origin;
+      if (!origin.contains('localhost') && !origin.contains('127.0.0.1')) {
+        apiUrl = origin;
+      }
+    }
+    
     _dio = Dio(BaseOptions(
       baseUrl: apiUrl,
       connectTimeout: const Duration(seconds: 10),
