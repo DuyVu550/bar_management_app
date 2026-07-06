@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/providers/layout_providers.dart';
 import '../../domain/entities/menu_item_entity.dart';
 import '../providers/menu_providers.dart';
 import '../../../unit/presentation/providers/unit_providers.dart';
@@ -19,6 +20,13 @@ class MenuManagementScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('QUẢN LÝ THỰC ĐƠN & ĐỒ UỐNG'),
+        leading: MediaQuery.of(context).size.width < 800
+            ? IconButton(
+                icon: const Icon(Icons.menu, color: AppTheme.primaryGold),
+                tooltip: 'Mở menu',
+                onPressed: () => ref.read(scaffoldKeyProvider).currentState?.openDrawer(),
+              )
+            : null,
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_sweep, color: AppTheme.accentNeonRed),

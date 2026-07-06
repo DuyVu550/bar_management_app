@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/providers/layout_providers.dart';
 import '../../../menu/presentation/providers/menu_providers.dart';
 import '../../../menu/domain/entities/menu_item_entity.dart';
 import '../providers/stock_providers.dart';
@@ -26,6 +27,13 @@ class _StockManagementScreenState extends ConsumerState<StockManagementScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('BÁO CÁO TỒN KHO'),
+          leading: MediaQuery.of(context).size.width < 800
+              ? IconButton(
+                  icon: const Icon(Icons.menu, color: AppTheme.primaryGold),
+                  tooltip: 'Mở menu',
+                  onPressed: () => ref.read(scaffoldKeyProvider).currentState?.openDrawer(),
+                )
+              : null,
           bottom: const TabBar(
             indicatorColor: AppTheme.primaryGold,
             labelColor: AppTheme.primaryGold,

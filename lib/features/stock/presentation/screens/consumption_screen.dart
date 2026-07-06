@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/providers/layout_providers.dart';
 import '../../../menu/presentation/providers/menu_providers.dart';
 import '../../../menu/domain/entities/menu_item_entity.dart';
 import '../../domain/entities/stock_transaction_entity.dart';
@@ -21,7 +22,16 @@ class ConsumptionScreen extends ConsumerWidget {
     final dateFormat = DateFormat('dd/MM/yyyy');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('TIÊU THỤ & LỊCH SỬ')),
+      appBar: AppBar(
+        title: const Text('TIÊU THỤ & LỊCH SỬ'),
+        leading: MediaQuery.of(context).size.width < 800
+            ? IconButton(
+                icon: const Icon(Icons.menu, color: AppTheme.primaryGold),
+                tooltip: 'Mở menu',
+                onPressed: () => ref.read(scaffoldKeyProvider).currentState?.openDrawer(),
+              )
+            : null,
+      ),
       body: Column(
         children: [
           // Thanh tìm kiếm theo tên đồ uống tiêu thụ

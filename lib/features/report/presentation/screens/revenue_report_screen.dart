@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/providers/layout_providers.dart';
 import '../../../order/domain/entities/order_entity.dart';
 import '../../domain/entities/financial_report_entity.dart';
 import '../../domain/entities/financial_item_entity.dart';
@@ -17,6 +18,13 @@ class RevenueReportScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('BÁO CÁO CỬA HÀNG'),
+          leading: MediaQuery.of(context).size.width < 800
+              ? IconButton(
+                  icon: const Icon(Icons.menu, color: AppTheme.primaryGold),
+                  tooltip: 'Mở menu',
+                  onPressed: () => ref.read(scaffoldKeyProvider).currentState?.openDrawer(),
+                )
+              : null,
           bottom: const TabBar(
             indicatorColor: AppTheme.primaryGold,
             labelColor: AppTheme.primaryGold,

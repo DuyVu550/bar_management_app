@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/providers/layout_providers.dart';
 import '../providers/table_providers.dart';
 import '../../domain/entities/table_entity.dart';
 
@@ -16,7 +17,14 @@ class TableGridScreen extends ConsumerWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('BAR MANAGER'),
+          title: const Text('SƠ ĐỒ BÀN'),
+          leading: MediaQuery.of(context).size.width < 800
+              ? IconButton(
+                  icon: const Icon(Icons.menu, color: AppTheme.primaryGold),
+                  tooltip: 'Mở menu',
+                  onPressed: () => ref.read(scaffoldKeyProvider).currentState?.openDrawer(),
+                )
+              : null,
           bottom: const TabBar(
             indicatorColor: AppTheme.primaryGold,
             labelColor: AppTheme.primaryGold,
@@ -26,43 +34,6 @@ class TableGridScreen extends ConsumerWidget {
               Tab(text: 'BÀN VIP'),
             ],
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.straighten, color: AppTheme.primaryGold),
-              tooltip: 'Quản lý Đơn vị',
-              onPressed: () => context.push('/units'),
-            ),
-            IconButton(
-              icon: const Icon(Icons.move_to_inbox, color: AppTheme.primaryGold),
-              tooltip: 'Nhập hàng',
-              onPressed: () => context.push('/stock-in'),
-            ),
-            IconButton(
-              icon: const Icon(Icons.shopping_bag_outlined, color: AppTheme.primaryGold),
-              tooltip: 'Tiêu thụ',
-              onPressed: () => context.push('/consumption'),
-            ),
-            IconButton(
-              icon: const Icon(Icons.inventory, color: AppTheme.primaryGold),
-              tooltip: 'Báo cáo kho',
-              onPressed: () => context.push('/stock-manage'),
-            ),
-            IconButton(
-              icon: const Icon(Icons.layers, color: AppTheme.primaryGold),
-              tooltip: 'Quản lý Nguyên liệu',
-              onPressed: () => context.push('/ingredients-manage'),
-            ),
-            IconButton(
-              icon: const Icon(Icons.restaurant_menu, color: AppTheme.primaryGold),
-              tooltip: 'Quản lý Thực đơn',
-              onPressed: () => context.push('/menu-manage'),
-            ),
-            IconButton(
-              icon: const Icon(Icons.bar_chart, color: AppTheme.primaryGold),
-              tooltip: 'Báo cáo doanh thu',
-              onPressed: () => context.push('/report'),
-            ),
-          ],
         ),
         body: tablesStream.when(
           data: (tables) {
