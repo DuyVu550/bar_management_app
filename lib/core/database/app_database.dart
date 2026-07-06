@@ -30,7 +30,7 @@ class AppDatabase {
 
   Future<void> connect() async {
     if (_isConnected) return;
-    
+
     String apiUrl = dotenv.env['API_URL'] ?? "http://localhost:3000";
     if (kIsWeb) {
       final origin = Uri.base.origin;
@@ -38,12 +38,14 @@ class AppDatabase {
         apiUrl = origin;
       }
     }
-    
-    _dio = Dio(BaseOptions(
-      baseUrl: apiUrl,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ));
+
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: apiUrl,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ),
+    );
     _isConnected = true;
   }
 

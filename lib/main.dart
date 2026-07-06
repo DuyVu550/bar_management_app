@@ -14,6 +14,8 @@ void main() async {
     await dotenv.load(fileName: ".env");
   } catch (e) {
     debugPrint("Không thể tải file .env: $e");
+    // Khởi tạo dotenv từ bộ nhớ bằng testLoad để tránh crash khi đọc dotenv.env trên production
+    dotenv.testLoad(fileInput: 'API_URL=http://localhost:3000');
   }
 
   // Khởi tạo và kết nối MongoDB trước khi chạy giao diện
