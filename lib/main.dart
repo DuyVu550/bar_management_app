@@ -8,7 +8,7 @@ import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Tải file biến môi trường .env (nếu có)
   try {
     await dotenv.load(fileName: ".env");
@@ -24,9 +24,7 @@ void main() async {
 
   runApp(
     ProviderScope(
-      overrides: [
-        databaseProvider.overrideWithValue(db),
-      ],
+      overrides: [databaseProvider.overrideWithValue(db)],
       child: const MyApp(),
     ),
   );
